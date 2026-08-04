@@ -7,14 +7,16 @@
  */
 import { normalizeApiBase } from '@/utils/connection';
 
-/** Bounded per-request metadata event mirrored by the backend flow hub. */
+/** Bounded per-request metadata event mirrored by the backend flow hub.
+ * `model` is populated by the server middleware when the request body declares
+ * one (see sniffFlowModel in flowviz.go). */
 export interface LiveFlowEvent {
   id: string;
   /** Unix milliseconds when the request started. */
   ts: number;
   method: string;
   path: string;
-  /** Present only when a handler tags the request; usually absent today. */
+  /** Model requested by the client, when the request body declares one. */
   model?: string;
   status: number;
   latency_ms: number;
@@ -126,4 +128,85 @@ export function buildLiveFlowWsUrl(
 export function reconnectDelayMs(attempt: number, capMs = 15000): number {
   const cappedAttempt = Math.max(0, attempt);
   return Math.min(capMs, 1000 * 2 ** cappedAttempt);
+}
+
+/* ------------------------------------------------------------------ */
+/* Topology canvas: CPA-centric ring of model nodes. Pure helpers so   */
+/* layout and grouping stay unit-testable without reactflow or DOM.    */
+/* ------------------------------------------------------------------ */
+
+/** Hard cap on model nodes rendered in the canvas. Excess collapse into
+ * a single synthetic "others" node so the layout stays light. */
+export const LIVE_FLOW_MAX_MODEL_NODES = 24;
+
+/** Sentinel id for the aggregate node receiving pulses for capped models. */
+export const LIVE_FLOW_OTHERS_NODE_ID = '__others__';
+
+/** One model node in the persistent topology. */
+export interface FlowModelNodeDescriptor {
+  /** Stable node id (equals the model name, or the others sentinel). */
+  id: string;
+  /** Short display label. */
+  label: string;
+  /** Deterministic position on the ring around the CLIProxyAPI node. */
+  position: { x: number; y: number };
+}
+
+/**
+ * Insert a model name into a bounded, insertion-ordered set. Existing entries
+ * are kept in place so node positions stay stable frame to frame. Returns the
+ * same reference when the model already exists or is empty, so callers can
+ * skip re-renders.
+ */
+export function registerModelName(
+  models: readonly string[],
+  modelName: string | undefined
+): readonly string[] {
+  const name = (modelName ?? '').trim();
+  if (!name) return models;
+  if (models.includes(name)) return models;
+  return [...models, name];
+}
+
+/**
+ * Compute the visible model set: the first `max` inserted models are shown as
+ * individual nodes; anything beyond collapses into the "others" node.
+ * Returns the ordered node list plus a lookup that maps any observed model
+ * name onto the node id that should receive its traffic pulse.
+ */
+export function buildTopology(
+  models: readonly string[],
+  max: number = LIVE_FLOW_MAX_MODEL_NODES
+): { nodes: FlowModelNodeDescriptor[]; route: (model: string | undefined) => string } {
+  const visible = models.slice(0, max);
+  const overflow = models.length > visible.length;
+  const total = visible.length + (overflow ? 1 : 0);
+
+  // Ring layout around a canvas centered at (0,0). Radius grows a touch with
+  // node count so labels don't crowd the center node.
+  const radius = Math.max(220, Math.min(420, 140 + total * 14));
+  const nodes: FlowModelNodeDescriptor[] = [];
+  for (let i = 0; i < total; i += 1) {
+    const angle = (i / total) * Math.PI * 2 - Math.PI / 2; // start at the top
+    const isOthers = overflow && i === total - 1;
+    nodes.push({
+      id: isOthers ? LIVE_FLOW_OTHERS_NODE_ID : visible[i]!,
+      label: isOthers ? `+${models.length - visible.length} more` : visible[i]!,
+      position: {
+        x: Math.round(Math.cos(angle) * radius),
+        y: Math.round(Math.sin(angle) * radius * 0.72), // oval for wide canvases
+      },
+    });
+  }
+
+  const visibleSet = new Set(visible);
+  const route = (model: string | undefined): string => {
+    if (model && visibleSet.has(model)) return model;
+    if (model && !visibleSet.has(model) && overflow) return LIVE_FLOW_OTHERS_NODE_ID;
+    // Unknown/absent model: pulse to the others node when it exists, else no
+    // destination (caller renders a short self-loop / skips the edge).
+    return overflow ? LIVE_FLOW_OTHERS_NODE_ID : '';
+  };
+
+  return { nodes, route };
 }

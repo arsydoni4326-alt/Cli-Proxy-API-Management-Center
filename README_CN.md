@@ -101,7 +101,7 @@ docker run --rm -v "$(pwd):/out" --entrypoint sh cpamc-panel -c "cp /management.
 - **OAuth**：对 Codex、Anthropic/Claude、Antigravity、Kimi、xAI/Grok 发起 OAuth/设备码流程并轮询状态；支持提交回调 URL 或 xAI/Grok 页面显示的 code；包含 Vertex JSON 凭据导入与 iFlow Cookie 导入。
 - **配额管理**：管理 Claude、Antigravity、Codex、Kimi、xAI/Grok 等提供商的配额上限与使用情况。
 - **日志**：增量拉取日志、自动刷新、搜索、隐藏管理端流量、清空日志；下载请求错误日志文件。
-- **实时请求流**：通过 WebSocket 订阅 `/live-flow/ws` 实时可视化请求流向；使用 React Flow 图（客户端 → CLIProxyAPI → 上游）并按状态着色闪烁连线，配合有界（200 条）最近事件表，支持暂停/继续与清空。仅在后端开启 `flow-visualization-enabled` 时显示。
+- **实时请求流**：通过 WebSocket 订阅 `/live-flow/ws` 实时可视化请求流向；使用 React Flow 画布渲染持久拓扑 —— 中央为 CLIProxyAPI 节点，所有已观测到的上游模型散布在其周围，每个进入的请求都会以按状态着色的流量脉冲动画从 CLIProxyAPI 流向目标模型；配合有界（200 条）最近事件表，支持暂停/继续与清空。仅在后端开启 `flow-visualization-enabled` 时显示。
 - **系统信息**：快捷链接、版本检查、请求日志开关、本地登录信息清理，以及拉取 `/v1/models` 并分组展示（需要至少一个代理 API Key 才能查询模型）。
 
 ## 技术栈

@@ -101,7 +101,7 @@ Check the CLI Proxy API server documentation/config comments for the full authen
 - **OAuth**: start OAuth/device flows for Codex, Anthropic/Claude, Antigravity, Kimi, and xAI/Grok; poll status; submit callback URLs or xAI/Grok displayed codes; import Vertex JSON credentials and iFlow cookies.
 - **Quota Management**: manage quota limits and usage for Claude, Antigravity, Codex, Kimi, xAI/Grok, and other providers.
 - **Logs**: tail logs with incremental polling, auto-refresh, search, hide management traffic, clear logs; download request error log files.
-- **Live Flow**: real-time request-flow visualization over a WebSocket subscriber to `/live-flow/ws`; React Flow graph (Client → CLIProxyAPI → Upstream) with status-colored edge flashes, a bounded (200) recent-events table, pause/resume, and clear. Rendered only when the backend `flow-visualization-enabled` option is on.
+- **Live Flow**: real-time request-flow visualization over a WebSocket subscriber to `/live-flow/ws`; a React Flow canvas rendering a persistent topology — a central CLIProxyAPI node with every observed upstream model scattered around it, each incoming request animating a status-colored traffic pulse from CLIProxyAPI to its destination model — with a bounded (200) recent-events table, pause/resume, and clear. Rendered only when the backend `flow-visualization-enabled` option is on.
 - **System**: quick links, update check, request logging toggle, local login data cleanup, and fetch `/v1/models` (grouped view). Requires at least one proxy API key to query models.
 
 ## Tech Stack

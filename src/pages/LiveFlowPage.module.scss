@@ -32,20 +32,87 @@
 }
 
 .flowCanvas {
-  height: 240px;
+  height: 520px;
   width: 100%;
 
   :global(.react-flow__node) {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     border: 1px solid var(--border-color, #d9d9d9);
     border-radius: 10px;
-    background: var(--card-bg, #ffffff);
+    background: var(--bg-primary, #ffffff);
     color: var(--text-primary, #1f2933);
   }
 
   :global(.react-flow__attribution) {
     display: none;
+  }
+}
+
+/* CLIProxyAPI hub at the center of the ring.
+   Primary-tinted fill governs the accent; the text uses the strongest
+   foreground so it pops against the tinted background in both themes. */
+.centerNode {
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1.5px solid var(--primary-color, #8b8680) !important;
+  border-radius: 12px;
+  background: var(--primary-10, rgba(139, 134, 128, 0.1));
+  color: var(--text-primary, #1f2933);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary-color, #8b8680) 18%, transparent);
+}
+
+/* One model node on the ring.
+   Restrained fill (theme primary, not high-contrast) with a heavier,
+   slightly-spaced label so the name reads crisply. */
+.modelNode {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  border: 1px solid var(--border-color, #d9d9d9) !important;
+  border-radius: 999px;
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #1f2933);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--text-primary, #000) 6%, transparent);
+}
+
+/* Aggregate node for models beyond the visible cap.
+   Dashed outline + muted italic label signal "aggregate/overflow". */
+.othersNode {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  border: 1px dashed var(--border-color, #d9d9d9) !important;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+}
+
+/* Per-request traffic pulse from the hub to a model node.
+   Rendered briefly (removed by JS); the keyframe handles fade-out.
+   Duration must match ACTIVE_PULSE_MS in LiveFlowPage.tsx (2000 ms). */
+.pulseEdge {
+  stroke-width: 3;
+  animation: pulseEdgeFade 2s ease-out forwards;
+}
+
+@keyframes pulseEdgeFade {
+  0% {
+    opacity: 1;
+    stroke-width: 5;
+  }
+  60% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    stroke-width: 1.5;
   }
 }
 

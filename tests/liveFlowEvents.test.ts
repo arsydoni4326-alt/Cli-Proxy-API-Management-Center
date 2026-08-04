@@ -2,11 +2,15 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   LIVE_FLOW_BUFFER_LIMIT,
+  LIVE_FLOW_MAX_MODEL_NODES,
+  LIVE_FLOW_OTHERS_NODE_ID,
   appendBoundedEvent,
   boundedBufferLength,
   buildLiveFlowWsUrl,
+  buildTopology,
   normalizeFlowEvent,
   reconnectDelayMs,
+  registerModelName,
   statusTone,
   type LiveFlowEvent,
 } from '../src/features/liveFlow/liveFlowEvents';
@@ -253,5 +257,77 @@ describe('reconnectDelayMs', () => {
 
   test('clamps negative attempts to the 1s floor', () => {
     expect(reconnectDelayMs(-5)).toBe(1000);
+  });
+});
+
+describe('registerModelName', () => {
+  test('appends a new model and preserves insertion order', () => {
+    let models: readonly string[] = [];
+    models = registerModelName(models, 'gpt-4o');
+    models = registerModelName(models, 'claude-3.7');
+    models = registerModelName(models, 'gemini-2.5');
+    expect(models).toEqual(['gpt-4o', 'claude-3.7', 'gemini-2.5']);
+  });
+
+  test('returns the same reference for a duplicate or empty name', () => {
+    const models = registerModelName([], 'gpt-4o');
+    expect(registerModelName(models, 'gpt-4o')).toBe(models);
+    expect(registerModelName(models, '')).toBe(models);
+    expect(registerModelName(models, undefined)).toBe(models);
+    expect(registerModelName(models, '   ')).toBe(models);
+  });
+
+  test('trims whitespace around the name', () => {
+    const models = registerModelName([], '  gpt-4o  ');
+    expect(models).toEqual(['gpt-4o']);
+  });
+});
+
+describe('buildTopology', () => {
+  test('lays every model on the ring when under the cap', () => {
+    const { nodes, route } = buildTopology(['a', 'b', 'c']);
+    expect(nodes.map((n) => n.id)).toEqual(['a', 'b', 'c']);
+    // No overflow → no synthetic others node.
+    expect(nodes.some((n) => n.id === LIVE_FLOW_OTHERS_NODE_ID)).toBe(false);
+    // Positions are deterministic and non-zero-radius.
+    for (const node of nodes) {
+      expect(Number.isFinite(node.position.x)).toBe(true);
+      expect(Number.isFinite(node.position.y)).toBe(true);
+      expect(Math.hypot(node.position.x, node.position.y)).toBeGreaterThan(0);
+    }
+    expect(route('b')).toBe('b');
+    // Unknown model with no overflow → no destination.
+    expect(route('zzz')).toBe('');
+    expect(route(undefined)).toBe('');
+  });
+
+  test('collapses overflow into a single others node and routes capped models to it', () => {
+    const models = Array.from({ length: LIVE_FLOW_MAX_MODEL_NODES + 3 }, (_, i) => `m${i}`);
+    const { nodes, route } = buildTopology(models);
+    expect(nodes.length).toBe(LIVE_FLOW_MAX_MODEL_NODES + 1);
+    const others = nodes[nodes.length - 1];
+    expect(others?.id).toBe(LIVE_FLOW_OTHERS_NODE_ID);
+    expect(others?.label).toBe('+3 more');
+    // Visible models route to themselves.
+    expect(route('m0')).toBe('m0');
+    expect(route(`m${LIVE_FLOW_MAX_MODEL_NODES - 1}`)).toBe(`m${LIVE_FLOW_MAX_MODEL_NODES - 1}`);
+    // Overflowed models route to the others node.
+    expect(route(`m${LIVE_FLOW_MAX_MODEL_NODES}`)).toBe(LIVE_FLOW_OTHERS_NODE_ID);
+    // Unknown/absent model with overflow → others node for visibility.
+    expect(route('never-seen')).toBe(LIVE_FLOW_OTHERS_NODE_ID);
+    expect(route(undefined)).toBe(LIVE_FLOW_OTHERS_NODE_ID);
+  });
+
+  test('is deterministic across calls (insertion order drives layout)', () => {
+    const models = ['x', 'y', 'z'];
+    const first = buildTopology(models);
+    const second = buildTopology(models);
+    expect(first.nodes).toEqual(second.nodes);
+  });
+
+  test('handles an empty model set', () => {
+    const { nodes, route } = buildTopology([]);
+    expect(nodes).toEqual([]);
+    expect(route('anything')).toBe('');
   });
 });

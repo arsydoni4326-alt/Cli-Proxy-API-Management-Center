@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, { Background, type Edge, type Node } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useTranslation } from 'react-i18next';
@@ -9,8 +9,11 @@ import { IconPause, IconPlay, IconTrash2 } from '@/components/ui/icons';
 import { useAuthStore, useConfigStore } from '@/stores';
 import {
   LIVE_FLOW_BUFFER_LIMIT,
+  LIVE_FLOW_OTHERS_NODE_ID,
   appendBoundedEvent,
   buildLiveFlowWsUrl,
+  buildTopology,
+  registerModelName,
   statusTone,
   type LiveFlowEvent,
   type LiveFlowStatusTone,
@@ -19,28 +22,13 @@ import {
 import { connectLiveFlowStream } from '@/features/liveFlow/liveFlowStream';
 import styles from './LiveFlowPage.module.scss';
 
-interface ActiveEdge {
+const CENTER_NODE_ID = 'cliproxyapi';
+
+interface ActivePulse {
   id: string;
+  target: string;
   tone: LiveFlowStatusTone;
 }
-
-const NODE_IDS = { client: 'client', proxy: 'proxy', upstream: 'upstream' } as const;
-
-const baseNodes: Node[] = [
-  { id: NODE_IDS.client, position: { x: 40, y: 90 }, data: { label: 'Client' }, draggable: false },
-  {
-    id: NODE_IDS.proxy,
-    position: { x: 300, y: 90 },
-    data: { label: 'CLIProxyAPI' },
-    draggable: false,
-  },
-  { id: NODE_IDS.upstream, position: { x: 560, y: 90 }, data: { label: 'Upstream' }, draggable: false },
-];
-
-const baseEdges: Edge[] = [
-  { id: 'client-proxy', source: NODE_IDS.client, target: NODE_IDS.proxy },
-  { id: 'proxy-upstream', source: NODE_IDS.proxy, target: NODE_IDS.upstream },
-];
 
 const TONE_CLASS: Record<LiveFlowStatusTone, string> = {
   success: styles.toneSuccess,
@@ -50,7 +38,14 @@ const TONE_CLASS: Record<LiveFlowStatusTone, string> = {
   unknown: styles.toneUnknown,
 };
 
-const ACTIVE_EDGE_MS = 900;
+// Kept in sync with the `pulseEdgeFade` keyframe duration in LiveFlowPage.module.scss.
+// Range: 1000–3000 ms (per UX request). Must stay identical to the SCSS value.
+const ACTIVE_PULSE_MS = 2000;
+
+// On first open, fitView frames the topology but caps the fit zoom below 1.0 so
+// the page starts slightly zoomed out (the model ring feels less dense).
+// This only affects the initial fit; it never fights user pan/zoom afterwards.
+const INITIAL_FIT_MAX_ZOOM = 0.89;
 
 const streamStateBadge = (state: LiveFlowStreamState): 'success' | 'warning' | 'error' | 'info' => {
   switch (state) {
@@ -74,31 +69,26 @@ export function LiveFlowPage() {
   const [streamState, setStreamState] = useState<LiveFlowStreamState>('idle');
   const [events, setEvents] = useState<LiveFlowEvent[]>([]);
   const [paused, setPaused] = useState(false);
-  const [activeEdges, setActiveEdges] = useState<ActiveEdge[]>([]);
-  const [modelLabel, setModelLabel] = useState<string | null>(null);
+  const [activePulses, setActivePulses] = useState<ActivePulse[]>([]);
+  const [models, setModels] = useState<readonly string[]>([]);
 
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
   const pendingRef = useRef<LiveFlowEvent[]>([]);
-  const edgeTimersRef = useRef<number[]>([]);
+  const pulseTimersRef = useRef<number[]>([]);
 
   const wsAuth = config?.wsAuth === true;
   const apiKeys = config?.apiKeys;
 
-  const flashEdges = useCallback((event: LiveFlowEvent) => {
+  const flashPulse = useCallback((event: LiveFlowEvent, target: string) => {
+    if (!target) return;
     const tone = statusTone(event.status);
-    const flashId = `${event.id}-${Math.random().toString(36).slice(2, 8)}`;
-    setActiveEdges((current) => [
-      ...current,
-      { id: `client-proxy-${flashId}`, tone },
-      { id: `proxy-upstream-${flashId}`, tone },
-    ]);
+    const pulseId = `${event.id}-${Math.random().toString(36).slice(2, 8)}`;
+    setActivePulses((current) => [...current, { id: pulseId, target, tone }]);
     const timer = window.setTimeout(() => {
-      setActiveEdges((current) =>
-        current.filter((edge) => !edge.id.endsWith(flashId))
-      );
-    }, ACTIVE_EDGE_MS);
-    edgeTimersRef.current.push(timer);
+      setActivePulses((current) => current.filter((pulse) => pulse.id !== pulseId));
+    }, ACTIVE_PULSE_MS);
+    pulseTimersRef.current.push(timer);
   }, []);
 
   useEffect(() => {
@@ -118,18 +108,27 @@ export function LiveFlowPage() {
           return;
         }
         setEvents((current) => appendBoundedEvent(current, event));
-        setModelLabel(event.model ?? null);
-        flashEdges(event);
+        setModels((current) => registerModelName(current, event.model));
       },
       onStateChange: setStreamState,
     });
 
-    const timers = edgeTimersRef.current;
+    const timers = pulseTimersRef.current;
     return () => {
       connection.close();
       timers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, [apiBase, wsAuth, apiKeys, flashEdges]);
+  }, [apiBase, wsAuth, apiKeys]);
+
+  const { nodes: topoNodes, route } = useMemo(() => buildTopology(models), [models]);
+
+  // Pulse whenever the latest event changes, routing towards its model node.
+  const latestEventId = events[0]?.id;
+  const latestEvent = events[0];
+  useEffect(() => {
+    if (!latestEvent) return;
+    flashPulse(latestEvent, route(latestEvent.model));
+  }, [latestEventId, latestEvent, route, flashPulse]);
 
   const togglePause = useCallback(() => {
     if (pausedRef.current) {
@@ -140,6 +139,13 @@ export function LiveFlowPage() {
           let next = current;
           for (let i = pending.length - 1; i >= 0; i -= 1) {
             next = appendBoundedEvent(next, pending[i]);
+          }
+          return next;
+        });
+        setModels((current) => {
+          let next = current;
+          for (const ev of pending) {
+            next = registerModelName(next, ev.model);
           }
           return next;
         });
@@ -155,28 +161,32 @@ export function LiveFlowPage() {
     setEvents([]);
   }, []);
 
-  const nodes: Node[] = baseNodes.map((node) =>
-    node.id === NODE_IDS.upstream && modelLabel
-      ? { ...node, data: { label: `Upstream · ${modelLabel}` } }
-      : node
-  );
-
-  const edges: Edge[] = baseEdges.map((edge) => ({
-    ...edge,
-    animated: true,
-    className: styles.baseEdge,
-  }));
-
-  const flashEdgeOverlays: Edge[] = activeEdges.map((flash) => {
-    const isRequestLeg = flash.id.startsWith('client-proxy');
-    return {
-      id: flash.id,
-      source: isRequestLeg ? NODE_IDS.client : NODE_IDS.proxy,
-      target: isRequestLeg ? NODE_IDS.proxy : NODE_IDS.upstream,
-      animated: true,
-      className: `${styles.flashEdge} ${TONE_CLASS[flash.tone]}`,
+  const nodes: Node[] = useMemo(() => {
+    const center: Node = {
+      id: CENTER_NODE_ID,
+      position: { x: 0, y: 0 },
+      data: { label: 'CLIProxyAPI' },
+      draggable: false,
+      className: styles.centerNode,
     };
-  });
+    const ring: Node[] = topoNodes.map((descriptor) => ({
+      id: descriptor.id,
+      position: descriptor.position,
+      data: { label: descriptor.label },
+      draggable: false,
+      className:
+        descriptor.id === LIVE_FLOW_OTHERS_NODE_ID ? styles.othersNode : styles.modelNode,
+    }));
+    return [center, ...ring];
+  }, [topoNodes]);
+
+  const edges: Edge[] = activePulses.map((pulse) => ({
+    id: pulse.id,
+    source: CENTER_NODE_ID,
+    target: pulse.target,
+    animated: true,
+    className: `${styles.pulseEdge} ${TONE_CLASS[pulse.tone]}`,
+  }));
 
   const configuredOut = streamState === 'error' || streamState === 'closed';
   const showDisabledHint = configuredOut && events.length === 0;
@@ -213,8 +223,9 @@ export function LiveFlowPage() {
         <div className={styles.flowCanvas}>
           <ReactFlow
             nodes={nodes}
-            edges={[...edges, ...flashEdgeOverlays]}
+            edges={edges}
             fitView
+            fitViewOptions={{ maxZoom: INITIAL_FIT_MAX_ZOOM }}
             nodesDraggable={false}
             nodesConnectable={false}
             zoomOnScroll={false}
