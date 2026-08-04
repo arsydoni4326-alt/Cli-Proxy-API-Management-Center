@@ -20,6 +20,7 @@ import {
   IconSidebarAuthFiles,
   IconSidebarConfig,
   IconSidebarDashboard,
+  IconSidebarLiveFlow,
   IconSidebarLogs,
   IconSidebarOauth,
   IconSidebarPlugins,
@@ -62,6 +63,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   pluginStore: <IconSidebarStore size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
+  liveFlow: <IconSidebarLiveFlow size={18} />,
   system: <IconSidebarSystem size={18} />,
 };
 
@@ -649,6 +651,12 @@ export function MainLayout() {
           labelKey: 'nav.logs',
           metaKey: 'nav_meta.logs',
           icon: sidebarIcons.logs,
+        },
+        {
+          path: '/live-flow',
+          labelKey: 'nav.live_flow',
+          metaKey: 'nav_meta.live_flow',
+          icon: sidebarIcons.liveFlow,
         },
       ],
     },

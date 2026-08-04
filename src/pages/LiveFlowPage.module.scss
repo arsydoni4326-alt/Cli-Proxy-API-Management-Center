@@ -1,0 +1,131 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 0 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flowCard {
+  padding: 0;
+  overflow: hidden;
+}
+
+.flowCanvas {
+  height: 240px;
+  width: 100%;
+
+  :global(.react-flow__node) {
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border-color, #d9d9d9);
+    border-radius: 10px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-primary, #1f2933);
+  }
+
+  :global(.react-flow__attribution) {
+    display: none;
+  }
+}
+
+.baseEdge {
+  stroke: var(--border-color, #d9d9d9);
+}
+
+.flashEdge {
+  stroke-width: 2.5;
+}
+
+.toneSuccess {
+  stroke: #22a06b;
+}
+
+.toneRedirect {
+  stroke: #3b82f6;
+}
+
+.toneClientError {
+  stroke: #e6a23c;
+}
+
+.toneServerError {
+  stroke: #e64545;
+}
+
+.toneUnknown {
+  stroke: #9ca3af;
+}
+
+.toneSuccessBadge {
+  background: rgba(34, 160, 107, 0.15);
+  color: #22a06b;
+}
+
+.toneWarningBadge {
+  background: rgba(230, 162, 60, 0.15);
+  color: #b97a1a;
+}
+
+.toneErrorBadge {
+  background: rgba(230, 69, 69, 0.15);
+  color: #e64545;
+}
+
+.toneNeutralBadge {
+  background: rgba(148, 163, 184, 0.15);
+  color: #64748b;
+}
+
+.eventsCard {
+  min-height: 200px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color, #e5e5e5);
+    white-space: nowrap;
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text-muted, #8a8a8a);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.pathCell {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

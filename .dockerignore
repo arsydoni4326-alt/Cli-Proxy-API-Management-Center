@@ -1,0 +1,26 @@
+# VCS
+.git
+.gitignore
+
+# Dependencies & build output (installed/rebuilt inside the image)
+node_modules
+dist
+
+# Tests are not needed for the production build
+tests
+
+# Docs (kept in the repo, excluded from the build context)
+README.md
+README_CN.md
+LICENSE
+
+# Editor / OS noise
+.idea
+.vscode
+*.log
+.DS_Store
+Thumbs.db
+
+# Local env files
+.env
+.env.*

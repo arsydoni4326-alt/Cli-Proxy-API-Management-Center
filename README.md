@@ -47,6 +47,25 @@ bun run build
 
 Tip: opening `dist/index.html` via `file://` may be blocked by browser CORS; serving it (preview/static server) is more reliable.
 
+### Option D: Build with Docker (no local toolchain)
+
+The included `Dockerfile` builds the panel into the self-contained `management.html` that CLI Proxy API serves — useful for air-gapped environments, version pinning, or CI:
+
+```bash
+# Build and extract the artifact into the current directory:
+docker build --output . .
+# → ./management.html
+```
+
+Alternatively, build the builder stage as an image and copy the file out of it (the final stage is `scratch`-based, so `--output` above is preferred):
+
+```bash
+docker build --target builder -t cpamc-panel .
+docker run --rm -v "$(pwd):/out" --entrypoint sh cpamc-panel -c "cp /management.html /out/"
+```
+
+Place the resulting `management.html` in CLI Proxy API's panel directory (e.g. `./static/` next to `config.yaml`, or `$MANAGEMENT_STATIC_PATH`) and, to pin it, set `remote-management.disable-auto-update-panel: true` so the backend won't overwrite it.
+
 ## Connecting to the server
 
 ### API address
@@ -82,6 +101,7 @@ Check the CLI Proxy API server documentation/config comments for the full authen
 - **OAuth**: start OAuth/device flows for Codex, Anthropic/Claude, Antigravity, Kimi, and xAI/Grok; poll status; submit callback URLs or xAI/Grok displayed codes; import Vertex JSON credentials and iFlow cookies.
 - **Quota Management**: manage quota limits and usage for Claude, Antigravity, Codex, Kimi, xAI/Grok, and other providers.
 - **Logs**: tail logs with incremental polling, auto-refresh, search, hide management traffic, clear logs; download request error log files.
+- **Live Flow**: real-time request-flow visualization over a WebSocket subscriber to `/live-flow/ws`; React Flow graph (Client → CLIProxyAPI → Upstream) with status-colored edge flashes, a bounded (200) recent-events table, pause/resume, and clear. Rendered only when the backend `flow-visualization-enabled` option is on.
 - **System**: quick links, update check, request logging toggle, local login data cleanup, and fetch `/v1/models` (grouped view). Requires at least one proxy API key to query models.
 
 ## Tech Stack

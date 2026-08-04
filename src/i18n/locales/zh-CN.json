@@ -106,6 +106,7 @@
     "plugin_store": "插件商店",
     "config_management": "配置面板",
     "logs": "日志查看",
+    "live_flow": "实时请求流",
     "system_info": "中心信息"
   },
   "nav_groups": {
@@ -125,6 +126,7 @@
     "plugins": "插件启停与配置",
     "plugin_store": "发现并安装插件",
     "logs": "请求追踪与排查",
+    "live_flow": "实时请求流向",
     "config_management": "网关基础配置",
     "system_info": "运行与诊断信息"
   },
@@ -828,6 +830,34 @@
     "double_click_copy_hint": "双击复制日志原文",
     "copy_success": "已复制日志原文",
     "copy_failed": "复制失败"
+  },
+  "live_flow": {
+    "title": "实时请求流",
+    "subtitle": "实时展示经过网关的请求流向（仅元数据）。",
+    "pause": "暂停",
+    "resume": "继续",
+    "clear": "清除",
+    "status": {
+      "idle": "空闲",
+      "connecting": "连接中",
+      "open": "实时",
+      "reconnecting": "重连中",
+      "closed": "已断开",
+      "error": "不可用"
+    },
+    "events_title": "最近请求",
+    "buffered_while_paused": "已暂停 · 缓冲 {{count}} 条",
+    "buffer_size": "保留最近 {{count}} 条",
+    "disabled_title": "实时请求流不可用",
+    "disabled_desc": "无法连接。请在服务器配置中启用 flow-visualization-enabled，并确认 ws-auth 凭据有效。",
+    "empty_title": "等待请求中",
+    "empty_desc": "当请求经过网关时，事件会实时显示在这里。",
+    "col_time": "时间",
+    "col_method": "方法",
+    "col_path": "路径",
+    "col_model": "模型",
+    "col_status": "状态",
+    "col_latency": "延迟"
   },
   "config_management": {
     "title": "配置面板",

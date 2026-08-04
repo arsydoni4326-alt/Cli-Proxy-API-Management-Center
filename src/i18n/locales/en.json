@@ -106,6 +106,7 @@
     "plugin_store": "Plugin Store",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
+    "live_flow": "Live Flow",
     "system_info": "Management Center Info"
   },
   "nav_groups": {
@@ -125,6 +126,7 @@
     "plugins": "Plugin toggles & config",
     "plugin_store": "Discover & install plugins",
     "logs": "Request tracing",
+    "live_flow": "Real-time request flow",
     "config_management": "Gateway configuration",
     "system_info": "Runtime & diagnostics"
   },
@@ -828,6 +830,34 @@
     "double_click_copy_hint": "Double-click to copy raw log line",
     "copy_success": "Log copied to clipboard",
     "copy_failed": "Copy failed"
+  },
+  "live_flow": {
+    "title": "Live Flow",
+    "subtitle": "Real-time request flow through the gateway (metadata only).",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clear": "Clear",
+    "status": {
+      "idle": "Idle",
+      "connecting": "Connecting",
+      "open": "Live",
+      "reconnecting": "Reconnecting",
+      "closed": "Disconnected",
+      "error": "Unavailable"
+    },
+    "events_title": "Recent requests",
+    "buffered_while_paused": "Paused · {{count}} buffered",
+    "buffer_size": "Latest {{count}} events",
+    "disabled_title": "Live flow unavailable",
+    "disabled_desc": "Could not connect. Enable \"flow-visualization-enabled\" in the server config and check that ws-auth credentials are valid.",
+    "empty_title": "Waiting for requests",
+    "empty_desc": "Events appear here as requests pass through the gateway.",
+    "col_time": "Time",
+    "col_method": "Method",
+    "col_path": "Path",
+    "col_model": "Model",
+    "col_status": "Status",
+    "col_latency": "Latency"
   },
   "config_management": {
     "title": "Config Panel",

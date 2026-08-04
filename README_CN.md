@@ -47,6 +47,25 @@ bun run build
 
 提示：直接用 `file://` 打开 `dist/index.html` 可能遇到浏览器 CORS 限制；更稳妥的方式是用预览/静态服务器打开。
 
+### 方式 D：使用 Docker 构建（无需本地工具链）
+
+仓库自带的 `Dockerfile` 可直接构建出 CLI Proxy API 所需的自包含 `management.html` —— 适用于离线/隔离环境、版本锁定或 CI 流水线：
+
+```bash
+# 构建并把产物提取到当前目录：
+docker build --output . .
+# → ./management.html
+```
+
+也可以把 builder 阶段打成镜像再拷贝出来（最终阶段基于 `scratch`，故优先推荐上面的 `--output` 方式）：
+
+```bash
+docker build --target builder -t cpamc-panel .
+docker run --rm -v "$(pwd):/out" --entrypoint sh cpamc-panel -c "cp /management.html /out/"
+```
+
+将生成的 `management.html` 放入 CLI Proxy API 的面板目录（例如 `config.yaml` 旁的 `./static/`，或 `$MANAGEMENT_STATIC_PATH`）；如需锁定该版本，设置 `remote-management.disable-auto-update-panel: true`，后端便不会自动覆盖它。
+
 ## 连接说明
 
 ### API 地址怎么填
@@ -82,6 +101,7 @@ bun run build
 - **OAuth**：对 Codex、Anthropic/Claude、Antigravity、Kimi、xAI/Grok 发起 OAuth/设备码流程并轮询状态；支持提交回调 URL 或 xAI/Grok 页面显示的 code；包含 Vertex JSON 凭据导入与 iFlow Cookie 导入。
 - **配额管理**：管理 Claude、Antigravity、Codex、Kimi、xAI/Grok 等提供商的配额上限与使用情况。
 - **日志**：增量拉取日志、自动刷新、搜索、隐藏管理端流量、清空日志；下载请求错误日志文件。
+- **实时请求流**：通过 WebSocket 订阅 `/live-flow/ws` 实时可视化请求流向；使用 React Flow 图（客户端 → CLIProxyAPI → 上游）并按状态着色闪烁连线，配合有界（200 条）最近事件表，支持暂停/继续与清空。仅在后端开启 `flow-visualization-enabled` 时显示。
 - **系统信息**：快捷链接、版本检查、请求日志开关、本地登录信息清理，以及拉取 `/v1/models` 并分组展示（需要至少一个代理 API Key 才能查询模型）。
 
 ## 技术栈

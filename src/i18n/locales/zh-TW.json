@@ -106,6 +106,7 @@
     "plugin_store": "插件商店",
     "config_management": "設定面板",
     "logs": "記錄檢視",
+    "live_flow": "即時請求流",
     "system_info": "中心資訊"
   },
   "nav_groups": {
@@ -125,6 +126,7 @@
     "plugins": "插件啟停與設定",
     "plugin_store": "探索並安裝插件",
     "logs": "請求追蹤與排查",
+    "live_flow": "即時請求流向",
     "config_management": "閘道基礎設定",
     "system_info": "運行與診斷資訊"
   },
@@ -854,6 +856,34 @@
     "double_click_copy_hint": "雙擊複製記錄原文",
     "copy_success": "已複製記錄原文",
     "copy_failed": "複製失敗"
+  },
+  "live_flow": {
+    "title": "即時請求流",
+    "subtitle": "即時串流展示經過閘道的請求流向（僅中繼資料）。",
+    "pause": "暫停",
+    "resume": "繼續",
+    "clear": "清除",
+    "status": {
+      "idle": "閒置",
+      "connecting": "連線中",
+      "open": "即時",
+      "reconnecting": "重新連線中",
+      "closed": "已斷線",
+      "error": "不可用"
+    },
+    "events_title": "最近請求",
+    "buffered_while_paused": "已暫停 · 緩衝 {{count}} 筆",
+    "buffer_size": "保留最近 {{count}} 筆",
+    "disabled_title": "即時請求流不可用",
+    "disabled_desc": "無法連線。請在伺服器設定中啟用 flow-visualization-enabled，並確認 ws-auth 憑證有效。",
+    "empty_title": "等待請求中",
+    "empty_desc": "當請求經過閘道時，事件會即時顯示在這裡。",
+    "col_time": "時間",
+    "col_method": "方法",
+    "col_path": "路徑",
+    "col_model": "模型",
+    "col_status": "狀態",
+    "col_latency": "延遲"
   },
   "config_management": {
     "title": "設定面板",
