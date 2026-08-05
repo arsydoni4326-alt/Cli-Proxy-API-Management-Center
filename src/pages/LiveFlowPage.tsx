@@ -73,9 +73,14 @@ export function LiveFlowPage() {
   const [models, setModels] = useState<readonly string[]>([]);
 
   const pausedRef = useRef(paused);
-  pausedRef.current = paused;
   const pendingRef = useRef<LiveFlowEvent[]>([]);
   const pulseTimersRef = useRef<number[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Keep the mutable paused flag in sync without writing the ref during render.
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
 
   const wsAuth = config?.wsAuth === true;
   const apiKeys = config?.apiKeys;
@@ -105,6 +110,7 @@ export function LiveFlowPage() {
       onEvent: (event) => {
         if (pausedRef.current) {
           pendingRef.current = appendBoundedEvent(pendingRef.current, event);
+          setPendingCount(pendingRef.current.length);
           return;
         }
         setEvents((current) => appendBoundedEvent(current, event));
@@ -135,6 +141,7 @@ export function LiveFlowPage() {
       if (pendingRef.current.length > 0) {
         const pending = pendingRef.current;
         pendingRef.current = [];
+        setPendingCount(0);
         setEvents((current) => {
           let next = current;
           for (let i = pending.length - 1; i >= 0; i -= 1) {
@@ -158,6 +165,7 @@ export function LiveFlowPage() {
 
   const clearEvents = useCallback(() => {
     pendingRef.current = [];
+    setPendingCount(0);
     setEvents([]);
   }, []);
 
@@ -246,7 +254,7 @@ export function LiveFlowPage() {
             {paused
               ? t('live_flow.buffered_while_paused', {
                   defaultValue: 'Paused · {{count}} buffered',
-                  count: pendingRef.current.length,
+                  count: pendingCount,
                 })
               : t('live_flow.buffer_size', {
                   defaultValue: 'Latest {{count}} events',
