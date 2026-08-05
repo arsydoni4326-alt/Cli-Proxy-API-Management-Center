@@ -80,6 +80,7 @@
     "error_required": "请填写完整的连接信息",
     "error_invalid": "连接失败，请检查服务地址、管理接口和管理密钥",
     "error_network": "网络连接失败，请检查网络或服务器地址",
+    "error_backend_unsupported_version": "CLI Proxy API 后端版本过低或未上报版本号，请将后端升级到 v7.1.0 或更高版本。",
     "error_timeout": "连接超时，服务器无响应",
     "error_unauthorized": "认证失败，管理密钥缺失或无效",
     "error_forbidden": "访问被拒绝，远程管理未启用、管理密钥未配置或 IP 被临时封禁",

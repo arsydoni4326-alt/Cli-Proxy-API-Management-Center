@@ -47,8 +47,14 @@ function getLocalizedErrorMessage(error: unknown, t: (key: string) => string): s
     return `HTTP ${status}: ${summary}${backendDetail}`;
   };
 
+  // 后端版本过低或无法识别（客户端主动拒绝，无 HTTP 状态码）
+  if (code === 'ERR_BACKEND_VERSION_UNSUPPORTED') {
+    return t('login.error_backend_unsupported_version');
+  }
+
   // 根据 HTTP 状态码判断
   if (status === 401) {
+
     return withHttpStatus(t('login.error_unauthorized'));
   }
   if (status === 403) {

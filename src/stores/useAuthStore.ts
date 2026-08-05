@@ -13,6 +13,9 @@ import { useConfigStore } from './useConfigStore';
 import { useModelsStore } from './useModelsStore';
 import { useQuotaStore } from './useQuotaStore';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
+import { isBackendVersionSupported, MIN_BACKEND_VERSION } from '@/utils/version';
+import type { ApiError } from '@/types';
+
 
 interface AuthStoreState extends AuthState {
   connectionStatus: ConnectionStatus;
@@ -114,7 +117,19 @@ export const useAuthStore = create<AuthStoreState>()(
           // 测试连接 - 获取配置
           await useConfigStore.getState().fetchConfig(true);
 
+          // 后端版本下限校验：版本号缺失或低于 MIN_BACKEND_VERSION 时拒绝登录
+          const detectedVersion = get().serverVersion;
+          if (!isBackendVersionSupported(detectedVersion)) {
+            const versionError = new Error(
+              `backend version ${detectedVersion ?? 'unknown'} < required ${MIN_BACKEND_VERSION}`
+            ) as ApiError;
+            versionError.code = 'ERR_BACKEND_VERSION_UNSUPPORTED';
+            set({ connectionStatus: 'error' });
+            throw versionError;
+          }
+
           // 登录成功
+
           set({
             isAuthenticated: true,
             apiBase,

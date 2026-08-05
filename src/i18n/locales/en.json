@@ -80,6 +80,8 @@
     "error_required": "Please fill in complete connection information",
     "error_invalid": "Connection failed, please check the server address, Management API, and management key",
     "error_network": "Network connection failed, please check your network or server address",
+    "error_backend_unsupported_version": "The CLI Proxy API backend is too old or did not report its version. Please upgrade the backend to v7.1.0 or newer.",
+
     "error_timeout": "Connection timed out, server not responding",
     "error_unauthorized": "Authentication failed, management key is missing or invalid",
     "error_forbidden": "Access denied, remote management is disabled, the management key is not configured, or this IP is temporarily banned",

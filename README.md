@@ -10,6 +10,10 @@ A single-file Web UI (React + TypeScript) for operating and troubleshooting the 
 
 Since version 6.0.19, the Web UI ships with the main program; access it via `/management.html` on the API port once the service is running.
 
+### Backend version enforcement
+
+The UI **enforces the ≥ 7.1.0 floor at login**. It tracks the backend version from the `X-CPA-Version` response headers that CLI Proxy API sends on every Management API response, and compares it against the internal floor (`MIN_BACKEND_VERSION`, see `src/utils/version.ts`). Login **fails closed**: if the reported version is older than 7.1.0, or if no version is reported at all (e.g. a backend from before version headers existed), the connection is rejected with a distinct localized diagnostic — "The CLI Proxy API backend is too old or did not report its version. Please upgrade the backend to v7.1.0 or newer." — instead of a generic connection error. This check is evaluated once per login, immediately after the initial config fetch.
+
 ## What this is (and isn’t)
 
 - This repository is the Web UI only. It talks to the CLI Proxy API **Management API** (`/v0/management`) to read/update config, upload credentials, and view logs.
@@ -146,6 +150,7 @@ The UI language is automatically detected from browser settings and can be manua
 
 ## Troubleshooting
 
+- **“Backend is too old or did not report its version”**: the backend is older than v7.1.0 (or too old to send version headers); upgrade CLI Proxy API to v7.1.0+ and retry. The floor is enforced at every login — see “Backend version enforcement” above.
 - **Can’t connect / 401**: confirm the API address and management key; remote access may require enabling remote management in the server config.
 - **Repeated auth failures**: the server may temporarily block remote IPs.
 - **Logs page missing**: enable “Logging to file” in Basic Settings; the navigation item is shown only when file logging is enabled.
