@@ -17,10 +17,11 @@ export type VisualConfigFieldPath =
   | 'authAutoRefreshWorkers'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
-  | 'streaming.nonstreamKeepaliveInterval';
+  | 'streaming.nonstreamKeepaliveInterval'
+  | 'transientErrorCooldownSeconds';
 
 export type VisualConfigValidationErrorCode =
-  'port_range' | 'non_negative_integer' | 'integer_range_1_3600';
+  'port_range' | 'non_negative_integer' | 'integer_range_1_3600' | 'integer_min_minus1';
 
 export type VisualConfigValidationErrors = Partial<
   Record<VisualConfigFieldPath, VisualConfigValidationErrorCode>
@@ -112,6 +113,8 @@ export type VisualConfigValues = {
   maxRetryCredentials: string;
   maxRetryInterval: string;
   disableCooling: boolean;
+  saveCooldownStatus: boolean;
+  transientErrorCooldownSeconds: string;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
   authAutoRefreshWorkers: string;
@@ -130,9 +133,20 @@ export type VisualConfigValues = {
   claudeHeaderOs: string;
   claudeHeaderArch: string;
   claudeHeaderTimeout: string;
+  claudeHeaderTimezone: string;
   claudeHeaderStabilizeDeviceProfile: boolean;
+  disableClaudeCloakMode: boolean;
+  claudeCodeDisableCloakingModelList: string[];
   codexHeaderUserAgent: string;
   codexHeaderBetaFeatures: string;
+  codexIdentityConfuse: boolean;
+  codexDisableCodexCloaking: boolean;
+  codexOptimizeMultiAgentV2: boolean;
+  xaiInjectXSearch: boolean;
+  videoResultAuthCacheTtl: string;
+  pprofEnable: boolean;
+  pprofAddr: string;
+  flowVisualizationEnabled: boolean;
   payloadDefaultRules: PayloadRule[];
   payloadDefaultRawRules: PayloadRule[];
   payloadOverrideRules: PayloadRule[];
@@ -176,6 +190,8 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   maxRetryCredentials: '',
   maxRetryInterval: '',
   disableCooling: false,
+  saveCooldownStatus: true,
+  transientErrorCooldownSeconds: '',
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',
   authAutoRefreshWorkers: '',
@@ -194,9 +210,20 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   claudeHeaderOs: '',
   claudeHeaderArch: '',
   claudeHeaderTimeout: '',
+  claudeHeaderTimezone: '',
   claudeHeaderStabilizeDeviceProfile: false,
+  disableClaudeCloakMode: false,
+  claudeCodeDisableCloakingModelList: [],
   codexHeaderUserAgent: '',
   codexHeaderBetaFeatures: '',
+  codexIdentityConfuse: false,
+  codexDisableCodexCloaking: false,
+  codexOptimizeMultiAgentV2: false,
+  xaiInjectXSearch: false,
+  videoResultAuthCacheTtl: '',
+  pprofEnable: false,
+  pprofAddr: '',
+  flowVisualizationEnabled: false,
   payloadDefaultRules: [],
   payloadDefaultRawRules: [],
   payloadOverrideRules: [],

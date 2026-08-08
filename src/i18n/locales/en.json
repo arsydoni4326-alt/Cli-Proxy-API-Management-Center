@@ -81,7 +81,6 @@
     "error_invalid": "Connection failed, please check the server address, Management API, and management key",
     "error_network": "Network connection failed, please check your network or server address",
     "error_backend_unsupported_version": "The CLI Proxy API backend is too old or did not report its version. Please upgrade the backend to v7.1.0 or newer.",
-
     "error_timeout": "Connection timed out, server not responding",
     "error_unauthorized": "Authentication failed, management key is missing or invalid",
     "error_forbidden": "Access denied, remote management is disabled, the management key is not configured, or this IP is temporarily banned",
@@ -928,7 +927,29 @@
           "title": "Advanced & Experimental",
           "description": "Header spoofing, signature cache, plugin sources, and other rarely changed settings",
           "plugins_title": "Plugins",
-          "signature_title": "Antigravity Signature"
+          "signature_title": "Antigravity Signature",
+          "disable_claude_cloak_mode": "Disable Claude Cloak Mode",
+          "disable_claude_cloak_mode_desc": "Stop spoofing Claude Code client fingerprints",
+          "cloak_model_list": "Disable Cloaking Model List",
+          "cloak_model_list_desc": "Models excluded from Claude Code cloaking",
+          "cloak_model_list_placeholder": "e.g. claude-opus-4-5",
+          "codex_identity_confuse": "Identity Confuse",
+          "codex_identity_confuse_desc": "Obfuscate Codex client identity",
+          "codex_disable_cloaking": "Disable Codex Cloaking",
+          "codex_disable_cloaking_desc": "Send requests without Codex CLI fingerprint spoofing",
+          "codex_optimize_multi_agent_v2": "Optimize Multi-Agent V2",
+          "codex_optimize_multi_agent_v2_desc": "Enable the v2 multi-agent prompt optimizations",
+          "xai_title": "xAI",
+          "xai_inject_x_search": "Inject X Search",
+          "xai_inject_x_search_desc": "Inject X (Twitter) search tooling into xAI requests",
+          "diagnostics_title": "Diagnostics",
+          "pprof_enable": "Enable pprof",
+          "pprof_enable_desc": "Expose Go pprof profiling endpoints",
+          "pprof_addr": "pprof Listen Address",
+          "flow_visualization_enabled": "Flow Visualization",
+          "flow_visualization_enabled_desc": "Enable the live request flow visualization endpoints",
+          "video_result_auth_cache_ttl": "Video Result Auth Cache TTL",
+          "video_result_auth_cache_ttl_hint": "Duration string, e.g. 1h"
         },
         "server": {
           "title": "Server Configuration",
@@ -1027,7 +1048,8 @@
           "timeout": "Timeout",
           "stabilize_device": "Stabilize Device Profile",
           "stabilize_device_desc": "Pin OS/Arch and stabilize the software fingerprint per credential/API key",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "timezone": "Timezone"
         },
         "network": {
           "title": "Network Configuration",
@@ -1061,7 +1083,11 @@
           "disable_cooling_desc": "Globally disable auth/model cooldown windows after failures",
           "session_affinity": "Session Affinity Routing",
           "ws_auth": "WebSocket Authentication",
-          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)"
+          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
+          "save_cooldown_status": "Save Cooldown Status",
+          "save_cooldown_status_desc": "Persist cooldown status to disk so cooldowns survive restarts",
+          "transient_error_cooldown": "Transient Error Cooldown (s)",
+          "transient_error_cooldown_hint": "Seconds to cool down a credential after a transient error; -1 disables, 0 uses the legacy default"
         },
         "quota": {
           "title": "Quota Fallback",
@@ -1169,7 +1195,8 @@
         "integer_range_1_3600": "Enter a whole number between 1 and 3600",
         "payload_invalid_number": "Enter a valid number",
         "payload_invalid_boolean": "Choose true or false",
-        "payload_invalid_json": "Enter valid JSON"
+        "payload_invalid_json": "Enter valid JSON",
+        "integer_min_minus1": "Enter -1 or a non-negative whole number"
       },
       "common": {
         "edit": "Edit",

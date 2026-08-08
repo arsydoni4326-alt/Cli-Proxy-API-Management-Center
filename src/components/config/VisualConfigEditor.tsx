@@ -364,6 +364,10 @@ export function VisualConfigEditor({
     t,
     validationErrors?.['streaming.nonstreamKeepaliveInterval']
   );
+  const transientErrorCooldownError = getValidationMessage(
+    t,
+    validationErrors?.transientErrorCooldownSeconds
+  );
 
   const handleApiKeysTextChange = useCallback(
     (apiKeysText: string) => onChange({ apiKeysText }),
@@ -375,6 +379,11 @@ export function VisualConfigEditor({
   );
   const handlePluginStoreAuthChange = useCallback(
     (pluginStoreAuth: PluginStoreAuthRule[]) => onChange({ pluginStoreAuth }),
+    [onChange]
+  );
+  const handleCloakModelListChange = useCallback(
+    (claudeCodeDisableCloakingModelList: string[]) =>
+      onChange({ claudeCodeDisableCloakingModelList }),
     [onChange]
   );
   const handlePayloadDefaultRulesChange = useCallback(
@@ -442,6 +451,7 @@ export function VisualConfigEditor({
           'maxRetryCredentials',
           'maxRetryInterval',
           'authAutoRefreshWorkers',
+          'transientErrorCooldownSeconds',
         ]),
       },
       {
@@ -1249,6 +1259,35 @@ export function VisualConfigEditor({
                       onChange={(disableCooling) => onChange({ disableCooling })}
                     />
                   </FieldAnchor>
+                  <FieldAnchor fieldId="saveCooldownStatus">
+                    <ToggleRow
+                      title={t('config_management.visual.sections.network.save_cooldown_status')}
+                      description={t(
+                        'config_management.visual.sections.network.save_cooldown_status_desc'
+                      )}
+                      checked={values.saveCooldownStatus}
+                      disabled={disabled}
+                      onChange={(saveCooldownStatus) => onChange({ saveCooldownStatus })}
+                    />
+                  </FieldAnchor>
+                  <FieldAnchor fieldId="transientErrorCooldownSeconds">
+                    <Input
+                      label={t(
+                        'config_management.visual.sections.network.transient_error_cooldown'
+                      )}
+                      type="number"
+                      placeholder="-1"
+                      value={values.transientErrorCooldownSeconds}
+                      onChange={(e) =>
+                        onChange({ transientErrorCooldownSeconds: e.target.value })
+                      }
+                      disabled={disabled}
+                      hint={t(
+                        'config_management.visual.sections.network.transient_error_cooldown_hint'
+                      )}
+                      error={transientErrorCooldownError}
+                    />
+                  </FieldAnchor>
                   <FieldAnchor fieldId="routingSessionAffinity">
                     <ToggleRow
                       title={t('config_management.visual.sections.network.session_affinity')}
@@ -1678,6 +1717,15 @@ export function VisualConfigEditor({
                           disabled={disabled}
                         />
                       </FieldAnchor>
+                      <FieldAnchor fieldId="claudeHeaderTimezone">
+                        <Input
+                          label={t('config_management.visual.sections.headers.timezone')}
+                          placeholder="Asia/Jakarta"
+                          value={values.claudeHeaderTimezone}
+                          onChange={(e) => onChange({ claudeHeaderTimezone: e.target.value })}
+                          disabled={disabled}
+                        />
+                      </FieldAnchor>
                     </SectionGrid>
                     <SectionGrid>
                       <FieldAnchor fieldId="claudeHeaderStabilizeDeviceProfile">
@@ -1693,7 +1741,43 @@ export function VisualConfigEditor({
                           }
                         />
                       </FieldAnchor>
+                      <FieldAnchor fieldId="disableClaudeCloakMode">
+                        <ToggleRow
+                          title={t('config_management.visual.sections.advanced.disable_claude_cloak_mode')}
+                          description={t(
+                            'config_management.visual.sections.advanced.disable_claude_cloak_mode_desc'
+                          )}
+                          checked={values.disableClaudeCloakMode}
+                          disabled={disabled}
+                          onChange={(disableClaudeCloakMode) =>
+                            onChange({ disableClaudeCloakMode })
+                          }
+                        />
+                      </FieldAnchor>
                     </SectionGrid>
+                    <Divider />
+                    <FieldAnchor fieldId="claudeCodeDisableCloakingModelList">
+                      <SectionSubsection
+                        title={t(
+                          'config_management.visual.sections.advanced.cloak_model_list'
+                        )}
+                        description={t(
+                          'config_management.visual.sections.advanced.cloak_model_list_desc'
+                        )}
+                      >
+                        <StringListEditor
+                          value={values.claudeCodeDisableCloakingModelList}
+                          disabled={disabled}
+                          placeholder={t(
+                            'config_management.visual.sections.advanced.cloak_model_list_placeholder'
+                          )}
+                          inputAriaLabel={t(
+                            'config_management.visual.sections.advanced.cloak_model_list'
+                          )}
+                          onChange={handleCloakModelListChange}
+                        />
+                      </SectionSubsection>
+                    </FieldAnchor>
                     <Divider />
                     <div className={styles.subsectionHeader}>
                       <h3 className={styles.subsectionTitle}>
@@ -1717,6 +1801,125 @@ export function VisualConfigEditor({
                           value={values.codexHeaderBetaFeatures}
                           onChange={(e) => onChange({ codexHeaderBetaFeatures: e.target.value })}
                           disabled={disabled}
+                        />
+                      </FieldAnchor>
+                    </SectionGrid>
+                    <SectionGrid>
+                      <FieldAnchor fieldId="codexIdentityConfuse">
+                        <ToggleRow
+                          title={t('config_management.visual.sections.advanced.codex_identity_confuse')}
+                          description={t(
+                            'config_management.visual.sections.advanced.codex_identity_confuse_desc'
+                          )}
+                          checked={values.codexIdentityConfuse}
+                          disabled={disabled}
+                          onChange={(codexIdentityConfuse) => onChange({ codexIdentityConfuse })}
+                        />
+                      </FieldAnchor>
+                      <FieldAnchor fieldId="codexDisableCodexCloaking">
+                        <ToggleRow
+                          title={t('config_management.visual.sections.advanced.codex_disable_cloaking')}
+                          description={t(
+                            'config_management.visual.sections.advanced.codex_disable_cloaking_desc'
+                          )}
+                          checked={values.codexDisableCodexCloaking}
+                          disabled={disabled}
+                          onChange={(codexDisableCodexCloaking) =>
+                            onChange({ codexDisableCodexCloaking })
+                          }
+                        />
+                      </FieldAnchor>
+                      <FieldAnchor fieldId="codexOptimizeMultiAgentV2">
+                        <ToggleRow
+                          title={t('config_management.visual.sections.advanced.codex_optimize_multi_agent_v2')}
+                          description={t(
+                            'config_management.visual.sections.advanced.codex_optimize_multi_agent_v2_desc'
+                          )}
+                          checked={values.codexOptimizeMultiAgentV2}
+                          disabled={disabled}
+                          onChange={(codexOptimizeMultiAgentV2) =>
+                            onChange({ codexOptimizeMultiAgentV2 })
+                          }
+                        />
+                      </FieldAnchor>
+                    </SectionGrid>
+                  </SectionStack>
+                </Collapsible>
+
+                <Collapsible
+                  label={t('config_management.visual.sections.advanced.xai_title')}
+                  defaultOpen={false}
+                >
+                  <SectionGrid>
+                    <FieldAnchor fieldId="xaiInjectXSearch">
+                      <ToggleRow
+                        title={t('config_management.visual.sections.advanced.xai_inject_x_search')}
+                        description={t(
+                          'config_management.visual.sections.advanced.xai_inject_x_search_desc'
+                        )}
+                        checked={values.xaiInjectXSearch}
+                        disabled={disabled}
+                        onChange={(xaiInjectXSearch) => onChange({ xaiInjectXSearch })}
+                      />
+                    </FieldAnchor>
+                  </SectionGrid>
+                </Collapsible>
+
+                <Collapsible
+                  label={t('config_management.visual.sections.advanced.diagnostics_title')}
+                  defaultOpen={false}
+                >
+                  <SectionStack>
+                    <SectionGrid>
+                      <FieldAnchor fieldId="pprofEnable">
+                        <ToggleRow
+                          title={t('config_management.visual.sections.advanced.pprof_enable')}
+                          description={t(
+                            'config_management.visual.sections.advanced.pprof_enable_desc'
+                          )}
+                          checked={values.pprofEnable}
+                          disabled={disabled}
+                          onChange={(pprofEnable) => onChange({ pprofEnable })}
+                        />
+                      </FieldAnchor>
+                      <FieldAnchor fieldId="pprofAddr">
+                        <Input
+                          label={t('config_management.visual.sections.advanced.pprof_addr')}
+                          placeholder="127.0.0.1:6060"
+                          value={values.pprofAddr}
+                          onChange={(e) => onChange({ pprofAddr: e.target.value })}
+                          disabled={disabled}
+                        />
+                      </FieldAnchor>
+                      <FieldAnchor fieldId="flowVisualizationEnabled">
+                        <ToggleRow
+                          title={t(
+                            'config_management.visual.sections.advanced.flow_visualization_enabled'
+                          )}
+                          description={t(
+                            'config_management.visual.sections.advanced.flow_visualization_enabled_desc'
+                          )}
+                          checked={values.flowVisualizationEnabled}
+                          disabled={disabled}
+                          onChange={(flowVisualizationEnabled) =>
+                            onChange({ flowVisualizationEnabled })
+                          }
+                        />
+                      </FieldAnchor>
+                    </SectionGrid>
+                    <SectionGrid>
+                      <FieldAnchor fieldId="videoResultAuthCacheTtl">
+                        <Input
+                          label={t(
+                            'config_management.visual.sections.advanced.video_result_auth_cache_ttl'
+                          )}
+                          placeholder="1h"
+                          value={values.videoResultAuthCacheTtl}
+                          onChange={(e) => onChange({ videoResultAuthCacheTtl: e.target.value })}
+                          disabled={disabled}
+                          hint={t(
+                            'config_management.visual.sections.advanced.video_result_auth_cache_ttl_hint'
+                          )}
                         />
                       </FieldAnchor>
                     </SectionGrid>

@@ -26,7 +26,7 @@ Tests use Bun's built-in test runner and are colocated under `tests/` as `*.test
 
 ## Commit & Pull Request Guidelines
 
-Git history follows Conventional Commit style, for example `feat: add support for xAI provider`, `fix(auth-files): keep disabled card actions visible`, and `ci: use node 24 for releases`. Keep commits focused and scoped when useful. Pull requests should include a change summary, linked issue when applicable, UI screenshots, backend version or reproduction details for integration work, and verification notes.
+Git history follows Conventional Commit style, for example `feat: add support for xAI provider`, `fix(auth-files): keep disabled card actions visible`, and `ci: use node 24 for releases`. Keep commits focused and scoped when useful. Pull requests should include a change summary, linked issue when applicable, UI screenshots, backend version or reproduction details for integration work, and verification notes. **Docs touched:** when a change alters behavior, configuration, or the API contract, update the affected documentation (`README*`, workspace `docs/`) in the same PR and list the docs touched in the PR description.
 
 ## Architecture & Configuration Notes
 

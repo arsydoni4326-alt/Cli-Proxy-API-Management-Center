@@ -953,7 +953,29 @@
           "title": "進階與實驗",
           "description": "請求標頭偽裝、簽章快取、外掛來源等不常修改的設定",
           "plugins_title": "外掛",
-          "signature_title": "Antigravity 簽章"
+          "signature_title": "Antigravity 簽章",
+          "disable_claude_cloak_mode": "停用 Claude 偽裝模式",
+          "disable_claude_cloak_mode_desc": "停止偽裝 Claude Code 用戶端指紋",
+          "cloak_model_list": "停用偽裝模型清單",
+          "cloak_model_list_desc": "從 Claude Code 偽裝中排除的模型",
+          "cloak_model_list_placeholder": "例如 claude-opus-4-5",
+          "codex_identity_confuse": "身分混淆",
+          "codex_identity_confuse_desc": "混淆 Codex 用戶端身分",
+          "codex_disable_cloaking": "停用 Codex 偽裝",
+          "codex_disable_cloaking_desc": "傳送請求時不偽裝 Codex CLI 指紋",
+          "codex_optimize_multi_agent_v2": "多代理 V2 最佳化",
+          "codex_optimize_multi_agent_v2_desc": "啟用 v2 多代理提示詞最佳化",
+          "xai_title": "xAI",
+          "xai_inject_x_search": "注入 X 搜尋",
+          "xai_inject_x_search_desc": "向 xAI 請求注入 X（Twitter）搜尋工具",
+          "diagnostics_title": "診斷",
+          "pprof_enable": "啟用 pprof",
+          "pprof_enable_desc": "公開 Go pprof 效能分析端點",
+          "pprof_addr": "pprof 監聽位址",
+          "flow_visualization_enabled": "流量視覺化",
+          "flow_visualization_enabled_desc": "啟用即時請求流視覺化端點",
+          "video_result_auth_cache_ttl": "影片結果驗證快取 TTL",
+          "video_result_auth_cache_ttl_hint": "時長字串，例如 1h"
         },
         "server": {
           "title": "伺服器設定",
@@ -1052,7 +1074,8 @@
           "timeout": "Timeout",
           "stabilize_device": "穩定設備指紋",
           "stabilize_device_desc": "固定 OS/Arch，並按憑證/API Key 穩定軟體指紋",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "timezone": "時區"
         },
         "network": {
           "title": "網路設定",
@@ -1086,7 +1109,11 @@
           "disable_cooling_desc": "全域停用驗證/模型失敗後的冷卻視窗",
           "session_affinity": "會話黏性路由",
           "ws_auth": "WebSocket 驗證",
-          "ws_auth_desc": "啟用 WebSocket 連線驗證（/v1/ws）"
+          "ws_auth_desc": "啟用 WebSocket 連線驗證（/v1/ws）",
+          "save_cooldown_status": "儲存冷卻狀態",
+          "save_cooldown_status_desc": "將冷卻狀態持久化到磁碟，使冷卻在重新啟動後仍然有效",
+          "transient_error_cooldown": "暫時性錯誤冷卻（秒）",
+          "transient_error_cooldown_hint": "憑證在暫時性錯誤後的冷卻秒數；-1 表示停用，0 使用舊版預設值"
         },
         "quota": {
           "title": "配額回退",
@@ -1194,7 +1221,8 @@
         "integer_range_1_3600": "請輸入 1 到 3600 之間的整數",
         "payload_invalid_number": "請輸入有效數字",
         "payload_invalid_boolean": "請選擇 true 或 false",
-        "payload_invalid_json": "請輸入有效的 JSON"
+        "payload_invalid_json": "請輸入有效的 JSON",
+        "integer_min_minus1": "請輸入 -1 或非負整數"
       },
       "common": {
         "edit": "編輯",

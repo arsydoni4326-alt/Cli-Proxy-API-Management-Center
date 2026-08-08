@@ -914,7 +914,29 @@
           "title": "Дополнительно и эксперименты",
           "description": "Подмена заголовков, кэш подписей, источники плагинов и другие редко изменяемые настройки",
           "plugins_title": "Плагины",
-          "signature_title": "Подпись Antigravity"
+          "signature_title": "Подпись Antigravity",
+          "disable_claude_cloak_mode": "Отключить режим маскировки Claude",
+          "disable_claude_cloak_mode_desc": "Прекратить подделку отпечатков клиента Claude Code",
+          "cloak_model_list": "Список моделей без маскировки",
+          "cloak_model_list_desc": "Модели, исключённые из маскировки Claude Code",
+          "cloak_model_list_placeholder": "напр. claude-opus-4-5",
+          "codex_identity_confuse": "Сокрытие идентичности",
+          "codex_identity_confuse_desc": "Запутывание идентичности клиента Codex",
+          "codex_disable_cloaking": "Отключить маскировку Codex",
+          "codex_disable_cloaking_desc": "Отправлять запросы без подделки отпечатков Codex CLI",
+          "codex_optimize_multi_agent_v2": "Оптимизация Multi-Agent V2",
+          "codex_optimize_multi_agent_v2_desc": "Включить оптимизации промптов multi-agent v2",
+          "xai_title": "xAI",
+          "xai_inject_x_search": "Внедрять X Search",
+          "xai_inject_x_search_desc": "Внедрять инструменты поиска X (Twitter) в запросы xAI",
+          "diagnostics_title": "Диагностика",
+          "pprof_enable": "Включить pprof",
+          "pprof_enable_desc": "Открыть эндпоинты профилирования Go pprof",
+          "pprof_addr": "Адрес прослушивания pprof",
+          "flow_visualization_enabled": "Визуализация потоков",
+          "flow_visualization_enabled_desc": "Включить эндпоинты живой визуализации потоков запросов",
+          "video_result_auth_cache_ttl": "TTL кэша авторизации результатов видео",
+          "video_result_auth_cache_ttl_hint": "Строка длительности, напр. 1h"
         },
         "server": {
           "title": "Настройки сервера",
@@ -1013,7 +1035,8 @@
           "timeout": "Timeout",
           "stabilize_device": "Стабилизировать профиль устройства",
           "stabilize_device_desc": "Фиксировать OS/Arch и стабилизировать программный отпечаток для учётных данных/API-ключа",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "timezone": "Часовой пояс"
         },
         "network": {
           "title": "Сетевые настройки",
@@ -1047,7 +1070,11 @@
           "disable_cooling_desc": "Глобально отключить окна охлаждения auth/model после ошибок",
           "session_affinity": "Маршрутизация с привязкой к сессии",
           "ws_auth": "Аутентификация WebSocket",
-          "ws_auth_desc": "Включить аутентификацию WebSocket (/v1/ws)"
+          "ws_auth_desc": "Включить аутентификацию WebSocket (/v1/ws)",
+          "save_cooldown_status": "Сохранять статус кулдауна",
+          "save_cooldown_status_desc": "Сохранять статус кулдауна на диск, чтобы кулдауны переживали перезапуск",
+          "transient_error_cooldown": "Кулдаун временной ошибки (с)",
+          "transient_error_cooldown_hint": "Секунды кулдауна учётных данных после временной ошибки; -1 отключает, 0 использует стандартное значение"
         },
         "quota": {
           "title": "Резерв по квоте",
@@ -1155,7 +1182,8 @@
         "integer_range_1_3600": "Введите целое число от 1 до 3600",
         "payload_invalid_number": "Введите корректное число",
         "payload_invalid_boolean": "Выберите true или false",
-        "payload_invalid_json": "Введите корректный JSON"
+        "payload_invalid_json": "Введите корректный JSON",
+        "integer_min_minus1": "Введите -1 или неотрицательное целое число"
       },
       "common": {
         "edit": "Изменить",

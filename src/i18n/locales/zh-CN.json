@@ -927,7 +927,29 @@
           "title": "高级与实验",
           "description": "请求头伪装、签名缓存、插件源等不常修改的设置",
           "plugins_title": "插件",
-          "signature_title": "Antigravity 签名"
+          "signature_title": "Antigravity 签名",
+          "disable_claude_cloak_mode": "禁用 Claude 伪装模式",
+          "disable_claude_cloak_mode_desc": "停止伪装 Claude Code 客户端指纹",
+          "cloak_model_list": "禁用伪装模型列表",
+          "cloak_model_list_desc": "从 Claude Code 伪装中排除的模型",
+          "cloak_model_list_placeholder": "例如 claude-opus-4-5",
+          "codex_identity_confuse": "身份混淆",
+          "codex_identity_confuse_desc": "混淆 Codex 客户端身份",
+          "codex_disable_cloaking": "禁用 Codex 伪装",
+          "codex_disable_cloaking_desc": "发送请求时不伪装 Codex CLI 指纹",
+          "codex_optimize_multi_agent_v2": "多智能体 V2 优化",
+          "codex_optimize_multi_agent_v2_desc": "启用 v2 多智能体提示词优化",
+          "xai_title": "xAI",
+          "xai_inject_x_search": "注入 X 搜索",
+          "xai_inject_x_search_desc": "向 xAI 请求注入 X（Twitter）搜索工具",
+          "diagnostics_title": "诊断",
+          "pprof_enable": "启用 pprof",
+          "pprof_enable_desc": "暴露 Go pprof 性能分析端点",
+          "pprof_addr": "pprof 监听地址",
+          "flow_visualization_enabled": "流量可视化",
+          "flow_visualization_enabled_desc": "启用实时请求流可视化端点",
+          "video_result_auth_cache_ttl": "视频结果鉴权缓存 TTL",
+          "video_result_auth_cache_ttl_hint": "时长字符串，例如 1h"
         },
         "server": {
           "title": "服务器配置",
@@ -1026,7 +1048,8 @@
           "timeout": "Timeout",
           "stabilize_device": "稳定设备指纹",
           "stabilize_device_desc": "固定 OS/Arch，并按凭据/API Key 稳定软件指纹",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "timezone": "时区"
         },
         "network": {
           "title": "网络配置",
@@ -1060,7 +1083,11 @@
           "disable_cooling_desc": "全局禁用认证/模型失败后的冷却窗口",
           "session_affinity": "会话粘性路由",
           "ws_auth": "WebSocket 认证",
-          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)"
+          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)",
+          "save_cooldown_status": "保存冷却状态",
+          "save_cooldown_status_desc": "将冷却状态持久化到磁盘，使冷却在重启后仍然有效",
+          "transient_error_cooldown": "瞬时错误冷却（秒）",
+          "transient_error_cooldown_hint": "凭证在瞬时错误后的冷却秒数；-1 表示禁用，0 使用旧版默认值"
         },
         "quota": {
           "title": "配额回退",
@@ -1168,7 +1195,8 @@
         "integer_range_1_3600": "请输入 1 到 3600 之间的整数",
         "payload_invalid_number": "请输入有效数字",
         "payload_invalid_boolean": "请选择 true 或 false",
-        "payload_invalid_json": "请输入有效的 JSON"
+        "payload_invalid_json": "请输入有效的 JSON",
+        "integer_min_minus1": "请输入 -1 或非负整数"
       },
       "common": {
         "edit": "编辑",

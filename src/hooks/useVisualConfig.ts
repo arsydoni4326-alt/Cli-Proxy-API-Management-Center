@@ -193,6 +193,13 @@ function getRedisRetentionError(value: string): 'integer_range_1_3600' | undefin
   return parsed >= 1 && parsed <= 3600 ? undefined : 'integer_range_1_3600';
 }
 
+function getIntegerMinMinus1Error(value: string): 'integer_min_minus1' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (!/^-?\d+$/.test(trimmed)) return 'integer_min_minus1';
+  return Number(trimmed) >= -1 ? undefined : 'integer_min_minus1';
+}
+
 export function getVisualConfigValidationErrors(
   values: VisualConfigValues
 ): VisualConfigValidationErrors {
@@ -210,6 +217,7 @@ export function getVisualConfigValidationErrors(
     'streaming.nonstreamKeepaliveInterval': getNonNegativeIntegerError(
       values.streaming.nonstreamKeepaliveInterval
     ),
+    transientErrorCooldownSeconds: getIntegerMinMinus1Error(values.transientErrorCooldownSeconds),
   };
 }
 
@@ -877,6 +885,8 @@ function getNextDirtyFields(
       'pluginsEnabled',
       'passthroughHeaders',
       'disableCooling',
+      'saveCooldownStatus',
+      'transientErrorCooldownSeconds',
       'disableImageGeneration',
       'gptImage2BaseModel',
       'authAutoRefreshWorkers',
@@ -888,9 +898,19 @@ function getNextDirtyFields(
       'claudeHeaderOs',
       'claudeHeaderArch',
       'claudeHeaderTimeout',
+      'claudeHeaderTimezone',
       'claudeHeaderStabilizeDeviceProfile',
+      'disableClaudeCloakMode',
       'codexHeaderUserAgent',
       'codexHeaderBetaFeatures',
+      'codexIdentityConfuse',
+      'codexDisableCodexCloaking',
+      'codexOptimizeMultiAgentV2',
+      'xaiInjectXSearch',
+      'videoResultAuthCacheTtl',
+      'pprofEnable',
+      'pprofAddr',
+      'flowVisualizationEnabled',
       'host',
       'port',
       'tlsEnable',
@@ -925,6 +945,15 @@ function getNextDirtyFields(
     updateDirty(
       'pluginStoreSources',
       areStringArraysEqual(nextValues.pluginStoreSources, baselineValues.pluginStoreSources)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'claudeCodeDisableCloakingModelList')) {
+    updateDirty(
+      'claudeCodeDisableCloakingModelList',
+      areStringArraysEqual(
+        nextValues.claudeCodeDisableCloakingModelList,
+        baselineValues.claudeCodeDisableCloakingModelList
+      )
     );
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'pluginStoreAuth')) {
@@ -1074,6 +1103,10 @@ export function useVisualConfig() {
       const plugins = asRecord(parsed.plugins);
       const claudeHeaderDefaults = asRecord(parsed['claude-header-defaults']);
       const codexHeaderDefaults = asRecord(parsed['codex-header-defaults']);
+      const pprof = asRecord(parsed.pprof);
+      const codex = asRecord(parsed.codex);
+      const claudeCode = asRecord(parsed['claude-code']);
+      const xai = asRecord(parsed.xai);
 
       const newValues: VisualConfigValues = {
         host: typeof parsed.host === 'string' ? parsed.host : '',
@@ -1120,6 +1153,8 @@ export function useVisualConfig() {
         maxRetryCredentials: String(parsed['max-retry-credentials'] ?? ''),
         maxRetryInterval: String(parsed['max-retry-interval'] ?? ''),
         disableCooling: Boolean(parsed['disable-cooling']),
+        saveCooldownStatus: Boolean(parsed['save-cooldown-status'] ?? true),
+        transientErrorCooldownSeconds: String(parsed['transient-error-cooldown-seconds'] ?? ''),
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
           typeof parsed['gpt-image-2-base-model'] === 'string'
@@ -1149,6 +1184,8 @@ export function useVisualConfig() {
           typeof claudeHeaderDefaults?.arch === 'string' ? claudeHeaderDefaults.arch : '',
         claudeHeaderTimeout:
           typeof claudeHeaderDefaults?.timeout === 'string' ? claudeHeaderDefaults.timeout : '',
+        claudeHeaderTimezone:
+          typeof claudeHeaderDefaults?.timezone === 'string' ? claudeHeaderDefaults.timezone : '',
         claudeHeaderStabilizeDeviceProfile: Boolean(
           claudeHeaderDefaults?.['stabilize-device-profile']
         ),
@@ -1160,6 +1197,21 @@ export function useVisualConfig() {
           typeof codexHeaderDefaults?.['beta-features'] === 'string'
             ? codexHeaderDefaults['beta-features']
             : '',
+        disableClaudeCloakMode: Boolean(parsed['disable-claude-cloak-mode']),
+        claudeCodeDisableCloakingModelList: parseStringList(
+          claudeCode?.['disable-cloaking-model-list']
+        ),
+        codexIdentityConfuse: Boolean(codex?.['identity-confuse']),
+        codexDisableCodexCloaking: Boolean(codex?.['disable-codex-cloaking']),
+        codexOptimizeMultiAgentV2: Boolean(codex?.['optimize-multi-agent-v2']),
+        xaiInjectXSearch: Boolean(xai?.['inject-x-search']),
+        videoResultAuthCacheTtl:
+          typeof parsed['video-result-auth-cache-ttl'] === 'string'
+            ? parsed['video-result-auth-cache-ttl']
+            : '',
+        pprofEnable: Boolean(pprof?.enable),
+        pprofAddr: typeof pprof?.addr === 'string' ? pprof.addr : '',
+        flowVisualizationEnabled: Boolean(parsed['flow-visualization-enabled']),
 
         quotaSwitchProject: Boolean(quotaExceeded?.['switch-project'] ?? true),
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
@@ -1347,6 +1399,18 @@ export function useVisualConfig() {
         if (dirtyFields.has('disableCooling')) {
           setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);
         }
+        if (dirtyFields.has('saveCooldownStatus')) {
+          if (docHas(doc, ['save-cooldown-status']) || !values.saveCooldownStatus) {
+            doc.setIn(['save-cooldown-status'], values.saveCooldownStatus);
+          }
+        }
+        if (dirtyFields.has('transientErrorCooldownSeconds')) {
+          setIntFromStringInDoc(
+            doc,
+            ['transient-error-cooldown-seconds'],
+            values.transientErrorCooldownSeconds
+          );
+        }
         if (dirtyFields.has('disableImageGeneration')) {
           setDisableImageGenerationInDoc(
             doc,
@@ -1387,6 +1451,7 @@ export function useVisualConfig() {
           dirtyFields.has('claudeHeaderOs') ||
           dirtyFields.has('claudeHeaderArch') ||
           dirtyFields.has('claudeHeaderTimeout') ||
+          dirtyFields.has('claudeHeaderTimezone') ||
           dirtyFields.has('claudeHeaderStabilizeDeviceProfile');
         if (claudeHeadersDirty) {
           ensureMapInDoc(doc, ['claude-header-defaults']);
@@ -1420,6 +1485,13 @@ export function useVisualConfig() {
           if (dirtyFields.has('claudeHeaderTimeout')) {
             setStringInDoc(doc, ['claude-header-defaults', 'timeout'], values.claudeHeaderTimeout);
           }
+          if (dirtyFields.has('claudeHeaderTimezone')) {
+            setStringInDoc(
+              doc,
+              ['claude-header-defaults', 'timezone'],
+              values.claudeHeaderTimezone
+            );
+          }
           if (dirtyFields.has('claudeHeaderStabilizeDeviceProfile')) {
             setBooleanInDoc(
               doc,
@@ -1449,6 +1521,72 @@ export function useVisualConfig() {
             );
           }
           deleteIfMapEmpty(doc, ['codex-header-defaults']);
+        }
+
+        if (dirtyFields.has('disableClaudeCloakMode')) {
+          setBooleanInDoc(doc, ['disable-claude-cloak-mode'], values.disableClaudeCloakMode);
+        }
+
+        if (dirtyFields.has('claudeCodeDisableCloakingModelList')) {
+          ensureMapInDoc(doc, ['claude-code']);
+          setStringListInDoc(
+            doc,
+            ['claude-code', 'disable-cloaking-model-list'],
+            values.claudeCodeDisableCloakingModelList
+          );
+          deleteIfMapEmpty(doc, ['claude-code']);
+        }
+
+        const codexOptionsDirty =
+          dirtyFields.has('codexIdentityConfuse') ||
+          dirtyFields.has('codexDisableCodexCloaking') ||
+          dirtyFields.has('codexOptimizeMultiAgentV2');
+        if (codexOptionsDirty) {
+          ensureMapInDoc(doc, ['codex']);
+          if (dirtyFields.has('codexIdentityConfuse')) {
+            setBooleanInDoc(doc, ['codex', 'identity-confuse'], values.codexIdentityConfuse);
+          }
+          if (dirtyFields.has('codexDisableCodexCloaking')) {
+            setBooleanInDoc(
+              doc,
+              ['codex', 'disable-codex-cloaking'],
+              values.codexDisableCodexCloaking
+            );
+          }
+          if (dirtyFields.has('codexOptimizeMultiAgentV2')) {
+            setBooleanInDoc(
+              doc,
+              ['codex', 'optimize-multi-agent-v2'],
+              values.codexOptimizeMultiAgentV2
+            );
+          }
+          deleteIfMapEmpty(doc, ['codex']);
+        }
+
+        if (dirtyFields.has('xaiInjectXSearch')) {
+          ensureMapInDoc(doc, ['xai']);
+          setBooleanInDoc(doc, ['xai', 'inject-x-search'], values.xaiInjectXSearch);
+          deleteIfMapEmpty(doc, ['xai']);
+        }
+
+        if (dirtyFields.has('videoResultAuthCacheTtl')) {
+          setStringInDoc(doc, ['video-result-auth-cache-ttl'], values.videoResultAuthCacheTtl);
+        }
+
+        const pprofDirty = dirtyFields.has('pprofEnable') || dirtyFields.has('pprofAddr');
+        if (pprofDirty) {
+          ensureMapInDoc(doc, ['pprof']);
+          if (dirtyFields.has('pprofEnable')) {
+            setBooleanInDoc(doc, ['pprof', 'enable'], values.pprofEnable);
+          }
+          if (dirtyFields.has('pprofAddr')) {
+            setStringInDoc(doc, ['pprof', 'addr'], values.pprofAddr);
+          }
+          deleteIfMapEmpty(doc, ['pprof']);
+        }
+
+        if (dirtyFields.has('flowVisualizationEnabled')) {
+          setBooleanInDoc(doc, ['flow-visualization-enabled'], values.flowVisualizationEnabled);
         }
 
         const quotaDirty =
