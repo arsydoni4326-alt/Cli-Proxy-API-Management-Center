@@ -170,9 +170,20 @@ bun run format     # Prettier
 bun run type-check # tsc --noEmit
 ```
 
+## Documentation
+
+- [CHANGELOG.md](CHANGELOG.md) — notable changes per merge/release
+- [CONTRIBUTING.md](CONTRIBUTING.md) — development workflow, PR requirements, i18n rules
+- [docs/](docs/README.md) — in-depth guides:
+  - [Management API contract (UI perspective)](docs/management-api.md)
+  - [Frontend architecture](docs/architecture.md)
+  - [Deployment guide](docs/deployment.md)
+  - [Future-work recommendations](docs/roadmap.md)
+
 ## Contributing
 
-Issues and PRs are welcome. Please include:
+Issues and PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
+full workflow. Please include:
 
 - Reproduction steps (server version + UI version)
 - Screenshots for UI changes

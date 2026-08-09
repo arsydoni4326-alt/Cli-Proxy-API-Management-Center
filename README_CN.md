@@ -170,9 +170,19 @@ bun run format     # Prettier
 bun run type-check # tsc --noEmit
 ```
 
+## 文档
+
+- [CHANGELOG.md](CHANGELOG.md) —— 按合并/发布记录的重要变更
+- [CONTRIBUTING.md](CONTRIBUTING.md) —— 开发流程、PR 要求、多语言规则
+- [docs/](docs/README.md) —— 深入指南：
+  - [Management API 契约（UI 视角）](docs/management-api.md)
+  - [前端架构](docs/architecture.md)
+  - [部署指南](docs/deployment.md)
+  - [后续工作建议](docs/roadmap.md)
+
 ## 贡献
 
-欢迎提 Issue 与 PR。建议附上：
+欢迎提 Issue 与 PR，完整流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。建议附上：
 
 - 复现步骤（服务端版本 + UI 版本）
 - UI 改动截图
