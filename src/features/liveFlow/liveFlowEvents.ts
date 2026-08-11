@@ -54,6 +54,52 @@ export function appendBoundedEvent(
   return next;
 }
 
+/* ------------------------------------------------------------------ */
+/* Per-model display filter (ROADMAP 2.6 step 5). Pure helpers so the  */
+/* page can switch focus without re-rendering loops and stays testable. */
+/* ------------------------------------------------------------------ */
+
+/** Empty string means "show every model" (no filtering). */
+export const LIVE_FLOW_FILTER_ALL = '';
+
+/**
+ * True when `event` passes the per-model display filter. The aggregate
+ * "others" node accepts only events whose model was demoted into it by
+ * `buildTopology` (models beyond the visible cap); events with a visible
+ * model node do not match. With LIVE_FLOW_FILTER_ALL everything passes.
+ * Display-side only: the raw buffer keeps every event so switching focus
+ * never loses history.
+ */
+export function matchesModelFilter(
+  event: LiveFlowEvent,
+  filter: string,
+  overflow: ReadonlySet<string> | null = null
+): boolean {
+  if (filter === LIVE_FLOW_FILTER_ALL) return true;
+  if (filter === LIVE_FLOW_OTHERS_NODE_ID) {
+    return overflow !== null && event.model !== undefined && overflow.has(event.model);
+  }
+  return event.model === filter;
+}
+
+/**
+ * Filter a live-flow event list by model. Returns the input array reference
+ * unchanged (shared by React memoization) when the filter matches everything.
+ */
+export function filterLiveFlowEvents(
+  events: readonly LiveFlowEvent[],
+  filter: string,
+  overflow: ReadonlySet<string> | null = null
+): readonly LiveFlowEvent[] {
+  if (filter === LIVE_FLOW_FILTER_ALL) return events;
+  return events.filter((event) => matchesModelFilter(event, filter, overflow));
+}
+
+/** True when the event carries one of the websocket conversation routes. These
+ * turn events render a localized "WS" badge in the method column instead of
+ * the raw method text. */
+export const isWsFlowEvent = (event: LiveFlowEvent): boolean => event.method === 'WS';
+
 /** Map an HTTP status code onto a coarse display tone for edges/badges. */
 export const statusTone = (status: number): LiveFlowStatusTone => {
   if (status >= 200 && status < 300) return 'success';

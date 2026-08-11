@@ -196,3 +196,34 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* WS conversation-turn badge shown instead of the raw method text.
+   Mirrors the .othersNode visual language (dashed/italic/muted) since both
+   mark "indirect" routing. */
+.wsFlowBadge {
+  display: inline-block;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  border: 1px dashed var(--border-color, #d9d9d9);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
+/* Per-model filter dropdown in the header controls. Matches Button sm height
+   so the controls row stays level. */
+.filterSelect {
+  height: 28px;
+  padding: 0 8px;
+  font-size: 12.5px;
+  border: 1px solid var(--border-color, #d9d9d9);
+  border-radius: 6px;
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #1f2933);
+  max-width: 180px;
+  text-overflow: ellipsis;
+}

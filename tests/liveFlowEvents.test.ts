@@ -2,12 +2,16 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   LIVE_FLOW_BUFFER_LIMIT,
+  LIVE_FLOW_FILTER_ALL,
   LIVE_FLOW_MAX_MODEL_NODES,
   LIVE_FLOW_OTHERS_NODE_ID,
   appendBoundedEvent,
   boundedBufferLength,
   buildLiveFlowWsUrl,
   buildTopology,
+  filterLiveFlowEvents,
+  isWsFlowEvent,
+  matchesModelFilter,
   normalizeFlowEvent,
   reconnectDelayMs,
   registerModelName,
@@ -329,5 +333,76 @@ describe('buildTopology', () => {
     const { nodes, route } = buildTopology([]);
     expect(nodes).toEqual([]);
     expect(route('anything')).toBe('');
+  });
+});
+
+describe('per-model filter (ROADMAP 2.6 step 5)', () => {
+  const makeEvent = (id: string, model?: string): LiveFlowEvent => ({
+    id,
+    ts: 1760424360123,
+    method: 'POST',
+    path: '/v1/chat/completions',
+    ...(model ? { model } : {}),
+    status: 200,
+    latency_ms: 1,
+  });
+
+  test('the ALL filter passes every event and returns the same reference', () => {
+    const events = [makeEvent('a', 'gpt-4o'), makeEvent('b'), makeEvent('c', 'claude-3.7')];
+    for (const event of events) {
+      expect(matchesModelFilter(event, LIVE_FLOW_FILTER_ALL)).toBe(true);
+    }
+    expect(filterLiveFlowEvents(events, LIVE_FLOW_FILTER_ALL)).toBe(events);
+  });
+
+  test('a concrete model keeps only exact matches (model-less events excluded)', () => {
+    const events = [makeEvent('a', 'gpt-4o'), makeEvent('b'), makeEvent('c', 'claude-3.7')];
+    expect(matchesModelFilter(makeEvent('x', 'gpt-4o'), 'gpt-4o')).toBe(true);
+    expect(matchesModelFilter(makeEvent('y'), 'gpt-4o')).toBe(false);
+    expect(matchesModelFilter(makeEvent('z', 'claude-3.7'), 'gpt-4o')).toBe(false);
+    expect(filterLiveFlowEvents(events, 'gpt-4o').map((e) => e.id)).toEqual(['a']);
+    expect(filterLiveFlowEvents(events, 'never-seen')).toEqual([]);
+  });
+
+  test('the others sentinel matches only overflow-demoted models', () => {
+    const overflow = new Set(['m24', 'm25']);
+    // A demoted (overflow) model matches.
+    expect(matchesModelFilter(makeEvent('a', 'm25'), LIVE_FLOW_OTHERS_NODE_ID, overflow)).toBe(true);
+    // A visible model does not.
+    expect(matchesModelFilter(makeEvent('b', 'm0'), LIVE_FLOW_OTHERS_NODE_ID, overflow)).toBe(false);
+    // Model-less events never match the others node.
+    expect(matchesModelFilter(makeEvent('c'), LIVE_FLOW_OTHERS_NODE_ID, overflow)).toBe(false);
+    // Without any overflow set, nothing matches the others node.
+    expect(matchesModelFilter(makeEvent('d', 'm25'), LIVE_FLOW_OTHERS_NODE_ID, null)).toBe(false);
+    expect(matchesModelFilter(makeEvent('e'), LIVE_FLOW_OTHERS_NODE_ID, null)).toBe(false);
+    const events = [makeEvent('a', 'm25'), makeEvent('b', 'm0'), makeEvent('c')];
+    expect(
+      filterLiveFlowEvents(events, LIVE_FLOW_OTHERS_NODE_ID, overflow).map((e) => e.id)
+    ).toEqual(['a']);
+  });
+});
+
+describe('isWsFlowEvent', () => {
+  test('detects websocket conversation turn events', () => {
+    expect(
+      isWsFlowEvent({
+        id: 'req_1',
+        ts: 1760424360123,
+        method: 'WS',
+        path: '/v1/responses',
+        status: 200,
+        latency_ms: 1,
+      })
+    ).toBe(true);
+    expect(
+      isWsFlowEvent({
+        id: 'req_2',
+        ts: 1760424360123,
+        method: 'POST',
+        path: '/v1/chat/completions',
+        status: 200,
+        latency_ms: 1,
+      })
+    ).toBe(false);
   });
 });

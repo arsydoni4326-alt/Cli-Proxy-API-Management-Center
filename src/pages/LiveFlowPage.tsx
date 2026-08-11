@@ -9,10 +9,14 @@ import { IconPause, IconPlay, IconTrash2 } from '@/components/ui/icons';
 import { useAuthStore, useConfigStore } from '@/stores';
 import {
   LIVE_FLOW_BUFFER_LIMIT,
+  LIVE_FLOW_FILTER_ALL,
+  LIVE_FLOW_MAX_MODEL_NODES,
   LIVE_FLOW_OTHERS_NODE_ID,
   appendBoundedEvent,
   buildLiveFlowWsUrl,
   buildTopology,
+  filterLiveFlowEvents,
+  isWsFlowEvent,
   registerModelName,
   statusTone,
   type LiveFlowEvent,
@@ -71,6 +75,7 @@ export function LiveFlowPage() {
   const [paused, setPaused] = useState(false);
   const [activePulses, setActivePulses] = useState<ActivePulse[]>([]);
   const [models, setModels] = useState<readonly string[]>([]);
+  const [modelFilter, setModelFilter] = useState<string>(LIVE_FLOW_FILTER_ALL);
 
   const pausedRef = useRef(paused);
   const pendingRef = useRef<LiveFlowEvent[]>([]);
@@ -128,9 +133,31 @@ export function LiveFlowPage() {
 
   const { nodes: topoNodes, route } = useMemo(() => buildTopology(models), [models]);
 
-  // Pulse whenever the latest event changes, routing towards its model node.
-  const latestEventId = events[0]?.id;
-  const latestEvent = events[0];
+  // Per-model display filter (step 5). Display-side only: the raw buffer keeps
+  // every event so switching focus never loses history. A selection whose model
+  // vanished (Clear) demotes back to "all" via a derived value — no effect needed.
+  const overflowModels = useMemo(
+    () => (models.length > LIVE_FLOW_MAX_MODEL_NODES ? new Set(models.slice(LIVE_FLOW_MAX_MODEL_NODES)) : null),
+    [models]
+  );
+  const matchingModel =
+    modelFilter === LIVE_FLOW_OTHERS_NODE_ID
+      ? overflowModels
+        ? LIVE_FLOW_OTHERS_NODE_ID
+        : LIVE_FLOW_FILTER_ALL
+      : models.includes(modelFilter)
+        ? modelFilter
+        : LIVE_FLOW_FILTER_ALL;
+  const displayedEvents = useMemo(
+    () => filterLiveFlowEvents(events, matchingModel, overflowModels),
+    [events, matchingModel, overflowModels]
+  );
+
+  // Pulse whenever the latest *displayed* event changes, routing towards its
+  // model node. Filtered-out events skip the pulse so the topology reflects the
+  // focused stream.
+  const latestEventId = displayedEvents[0]?.id;
+  const latestEvent = displayedEvents[0];
   useEffect(() => {
     if (!latestEvent) return;
     flashPulse(latestEvent, route(latestEvent.model));
@@ -214,6 +241,26 @@ export function LiveFlowPage() {
           <span className={`status-badge ${streamStateBadge(streamState)}`}>
             {t(`live_flow.status.${streamState}`, { defaultValue: streamState })}
           </span>
+          <select
+            className={styles.filterSelect}
+            value={matchingModel}
+            onChange={(e) => setModelFilter(e.target.value)}
+            aria-label={t('live_flow.col_model', { defaultValue: 'Model' })}
+          >
+            <option value={LIVE_FLOW_FILTER_ALL}>
+              {t('live_flow.filter_all_models', { defaultValue: 'All models' })}
+            </option>
+            {models.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+            {overflowModels !== null && (
+              <option value={LIVE_FLOW_OTHERS_NODE_ID}>
+                {t('live_flow.filter_others_model', { defaultValue: '"Others" node' })}
+              </option>
+            )}
+          </select>
           <Button variant="secondary" size="sm" onClick={togglePause}>
             {paused ? <IconPlay size={14} /> : <IconPause size={14} />}
             {paused
@@ -263,7 +310,7 @@ export function LiveFlowPage() {
           </span>
         }
       >
-        {events.length === 0 ? (
+        {displayedEvents.length === 0 ? (
           <EmptyState
             title={
               showDisabledHint
@@ -294,12 +341,20 @@ export function LiveFlowPage() {
               </tr>
             </thead>
             <tbody>
-              {events.map((event) => {
+              {displayedEvents.map((event) => {
                 const tone = statusTone(event.status);
                 return (
                   <tr key={event.id}>
                     <td>{new Date(event.ts).toLocaleTimeString()}</td>
-                    <td>{event.method}</td>
+                    <td>
+                      {isWsFlowEvent(event) ? (
+                        <span className={styles.wsFlowBadge}>
+                          {t('live_flow.method_ws', { defaultValue: 'WebSocket' })}
+                        </span>
+                      ) : (
+                        event.method
+                      )}
+                    </td>
                     <td className={styles.pathCell} title={event.path}>
                       {event.path}
                     </td>
