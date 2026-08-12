@@ -949,12 +949,44 @@ export function MainLayout() {
     ? t('sidebar.toggle_collapse', { defaultValue: 'Close navigation' })
     : t('sidebar.toggle_expand', { defaultValue: 'Open navigation' });
 
+  const mobileMenuBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Handle Escape on mobile sidebar: close + focus toggle button
+  const handleMobileSidebarEscape = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape' && sidebarOpen) {
+      setSidebarOpen(false);
+      mobileMenuBtnRef.current?.focus();
+    }
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    document.addEventListener('keydown', handleMobileSidebarEscape);
+    return () => document.removeEventListener('keydown', handleMobileSidebarEscape);
+  }, [sidebarOpen, handleMobileSidebarEscape]);
+
   return (
     <div
       className={`app-shell ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''} ${
         isPluginResourcePage ? 'plugin-resource-shell' : ''
       }`}
     >
+      {/* Skip-to-content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="skip-link"
+        onClick={(e) => {
+          e.preventDefault();
+          const main = document.getElementById('main-content');
+          if (main) {
+            main.focus();
+            main.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      >
+        {t('sidebar.skip_to_content')}
+      </a>
+
       <div className="top-gradient-blur" aria-hidden="true" />
 
       <header className="main-header" ref={headerRef}>
@@ -973,6 +1005,7 @@ export function MainLayout() {
 
         <div className="mobile-sidebar-actions">
           <Button
+            ref={mobileMenuBtnRef}
             className="mobile-menu-btn"
             variant="ghost"
             size="sm"
@@ -1131,7 +1164,7 @@ export function MainLayout() {
             </div>
           </div>
 
-          <div className="nav-section">
+          <nav aria-label={t('sidebar.nav_label')} className="nav-section">
             {navGroups.map((group, idx) => (
               <div className="nav-group" key={group.id}>
                 {showSidebarLabels ? (
@@ -1142,7 +1175,7 @@ export function MainLayout() {
                 {group.items.map((item) => renderNavItem(item))}
               </div>
             ))}
-          </div>
+          </nav>
         </aside>
 
         {!showSidebarLabels && railTooltip && (
@@ -1167,6 +1200,8 @@ export function MainLayout() {
           ref={contentRef}
         >
           <main
+            id="main-content"
+            tabIndex={-1}
             className={`main-content${isLogsPage ? ' main-content-logs' : ''}${
               isPluginResourcePage ? ' main-content-plugin-resource' : ''
             }`}

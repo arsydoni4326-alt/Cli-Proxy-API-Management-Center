@@ -9,6 +9,27 @@
 @use './components.scss';
 @use './layout.scss';
 
+/* Skip-to-content link – visually hidden until focused */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 8px 16px;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #000);
+  border: 2px solid var(--accent-color, #0066cc);
+  border-radius: 0 0 4px 0;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+  outline: none;
+}
+
 body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);

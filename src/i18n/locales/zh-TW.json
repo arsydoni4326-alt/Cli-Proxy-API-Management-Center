@@ -1514,7 +1514,9 @@
     "expand": "展開",
     "collapse": "收起",
     "subtitle": "CLI Proxy API 管理控制台",
-    "auth_files_count": "驗證檔案：{{count}} 個"
+    "auth_files_count": "驗證檔案：{{count}} 個",
+    "nav_label": "主導航",
+    "skip_to_content": "跳到主要內容"
   },
   "footer": {
     "api_version": "CLI Proxy API 版本",

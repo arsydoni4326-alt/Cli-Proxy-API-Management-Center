@@ -4,7 +4,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+/** @type {import('eslint').Linter.Config[]} */
+const config = [
   { ignores: ['dist'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -30,4 +31,21 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
-);
+];
+
+// Conditionally load eslint-plugin-jsx-a11y (requires the package to be installed)
+try {
+  const jsxA11y = await import('eslint-plugin-jsx-a11y');
+  config.push({
+    plugins: {
+      'jsx-a11y': jsxA11y.default ?? jsxA11y,
+    },
+    rules: {
+      ...(jsxA11y.default ?? jsxA11y).configs?.recommended?.rules,
+    },
+  });
+} catch {
+  // Plugin not installed; skip jsx-a11y rules.
+}
+
+export default tseslint.config(...config);

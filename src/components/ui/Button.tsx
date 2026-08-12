@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -10,7 +11,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-export function Button({
+export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(function Button({
   children,
   variant = 'primary',
   size = 'md',
@@ -19,7 +20,7 @@ export function Button({
   className = '',
   disabled,
   ...rest
-}: PropsWithChildren<ButtonProps>) {
+}, ref) {
   const hasChildren = children !== null && children !== undefined && children !== false;
   const classes = [
     'btn',
@@ -32,9 +33,9 @@ export function Button({
     .join(' ');
 
   return (
-    <button className={classes} disabled={disabled || loading} {...rest}>
+    <button className={classes} disabled={disabled || loading} {...rest} ref={ref}>
       {loading && <span className="loading-spinner" aria-hidden="true" />}
       {hasChildren && <span>{children}</span>}
     </button>
   );
-}
+});
