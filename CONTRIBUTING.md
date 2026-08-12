@@ -56,15 +56,35 @@ Include in the PR description:
    `README_CN.md`, `CHANGELOG.md`, `docs/`) **in the same PR** and list it
    here. When in doubt, add a `CHANGELOG.md` entry under `Unreleased`.
 
-## Internationalization
+## Internationalization (i18n)
 
-All user-facing text goes through i18next. When you add or change UI copy,
-update **all four locales** in the same change:
+All user-facing text goes through i18next. When you add or change UI copy, you must update **all four locales** in the same change:
 
 - `src/i18n/locales/en.json`
 - `src/i18n/locales/zh-CN.json`
 - `src/i18n/locales/zh-TW.json`
 - `src/i18n/locales/ru.json`
+
+### Automatic translation key validation
+
+To guarantee that no locale drifts out of sync, run:
+
+```
+node ../../check-i18n-keys.js
+```
+
+This will report any keys present in English (`en.json`) that are missing or empty in any other locale, exiting nonzero on drift. The CI process includes this check—PRs will fail if any locale is missing keys.
+
+### Onboarding a new community locale
+
+To add a new translation language:
+
+1. Copy `src/i18n/locales/en.json` → `src/i18n/locales/<your-locale>.json`.
+2. Translate all strings in your new locale file. Run `node ../../check-i18n-keys.js` to ensure full key parity.
+3. Register your locale in `src/i18n/index.ts` (import + add to `resources`).
+4. Open a PR; CI will enforce full translation coverage.
+
+See [`../docs/ROADMAP.md` Phase 3.1] for background and current status.
 
 ## Backend contract
 
