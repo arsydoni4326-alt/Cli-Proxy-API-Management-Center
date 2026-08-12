@@ -25,7 +25,7 @@ import styles from './ConfigPage.module.scss';
 
 type ConfigEditorTab = 'visual' | 'source';
 
-const LazyConfigSourceEditor = lazy(() => import('@/components/config/ConfigSourceEditor'));
+const LazyConfigSourceEditor = lazy(() => import('@/features/config/components/ConfigSourceEditor'));
 
 function readCommercialModeFromYaml(yamlContent: string): boolean {
   try {
