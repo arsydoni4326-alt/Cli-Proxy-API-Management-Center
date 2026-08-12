@@ -40,6 +40,20 @@ Net: 33 files changed, ~6,507 insertions, 19 deletions. New/updated tests:
 `backendVersionFloor.test.ts`, `liveFlowEvents.test.ts`,
 `visualConfigRemainingFields.test.ts`, `visualConfigValidation.test.ts`.
 
+## Bug fix: Docker build blocked by frozen lockfile
+
+- 2026-08-12: `docker build` failed at `bun install --frozen-lockfile`
+  (`error: lockfile had changes, but lockfile is frozen`). Root cause:
+  commit `cc79d6a` added `eslint-plugin-jsx-a11y@^6.10.2` to `package.json`
+  but never updated `bun.lock`.
+- Fixed by regenerating the lockfile with the project-pinned Bun
+  (`oven/bun:1.3.14`, matching `packageManager` in package.json) via
+  `bun install`, committing the +209-line lockfile update.
+- Branch `dev`, commit `2a48b8e` — "chore: sync bun.lock with package.json
+  (add eslint-plugin-jsx-a11y)".
+- Verified: `docker build --target builder` now completes (tsc + vite →
+  single-file `dist/index.html`, 996 modules).
+
 ## Architectural decisions / assumptions
 
 - No package releases are cut from `package.json` (`version: 0.0.0`); the
