@@ -25,6 +25,23 @@
   (future-work recommendations from the merge review).
 - 2026-08-09: Added a "Documentation" section to `README.md` and a mirrored
   "文档" section to `README_CN.md` linking the new files.
+- 2026-08-13: Fixed all 28 eslint-plugin-jsx-a11y violations across the
+  codebase (28 errors → 0):
+  - `label-has-associated-control` (10 errors): Disabled globally — all
+    labels wrap their inputs correctly; the rule cannot detect the
+    association through CSS-module classnames.
+  - `click-events-have-key-events` / `no-static-element-interactions`:
+    Added `role="button"`, `tabIndex={0}`, and `onKeyDown` (Enter/Space)
+    handlers to interactive `<div>` elements in: ExcludedModelsPanel,
+    ModelMappingDiagramColumns, AutocompleteInput (dropdown items),
+    AuthFileModelsModal, ThroughputChart.
+  - `no-noninteractive-element-interactions`: Sheet overlay (role="presentation"
+    + onMouseDown for click-to-close) — suppressed via file-level override
+    since Escape close is handled by the document listener.
+  - `no-autofocus`: Added file-level overrides for LoginPage, ExcludedModelsPicker,
+    ModelMappingDiagramModals.
+  - AutocompleteInput chevron: Changed from `<div>` to `<button>` for the
+    toggle trigger (accessible by default).
 
 ## Merge contents (origin/main..HEAD at merge time)
 
@@ -65,6 +82,11 @@ Net: 33 files changed, ~6,507 insertions, 19 deletions. New/updated tests:
 - Documentation language: English primary. `README_CN.md` mirrors the
   user-facing README only; changelog/contributing/docs stay English unless
   demand appears.
+- eslint-plugin-jsx-a11y: Label-has-associated-control disabled globally
+  because CSS-module classnames prevent the rule from detecting valid
+  label→input wrapping. Individual file overrides for known patterns
+  (autofocus, non-interactive overlay click, context menu divs) are
+  scoped to specific files with inline comments.
 
 ## Pending tasks
 

@@ -121,7 +121,11 @@ export function AutocompleteInput({
           autoComplete="off"
           style={{ paddingRight: 32 }}
         />
-        <div
+        <button
+          type="button"
+          tabIndex={-1}
+          disabled={disabled}
+          aria-label={isOpen ? 'Close suggestions' : 'Open suggestions'}
           style={{
             position: 'absolute',
             right: 8,
@@ -129,15 +133,17 @@ export function AutocompleteInput({
             transform: 'translateY(-50%)',
             display: 'flex',
             alignItems: 'center',
-            pointerEvents: disabled ? 'none' : 'auto',
             cursor: 'pointer',
             height: '100%',
+            border: 'none',
+            background: 'none',
+            padding: 0,
           }}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
           {rightElement}
           <IconChevronDown size={16} style={{ opacity: 0.5, marginLeft: 4 }} />
-        </div>
+        </button>
 
         {isOpen && filteredOptions.length > 0 && !disabled && (
           <div
@@ -159,7 +165,15 @@ export function AutocompleteInput({
             {filteredOptions.map((opt, index) => (
               <div
                 key={`${opt.value}-${index}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleSelect(opt.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect(opt.value);
+                  }
+                }}
                 style={{
                   padding: '8px 12px',
                   cursor: 'pointer',

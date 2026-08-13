@@ -58,9 +58,17 @@ export function AuthFileModelsModal(props: AuthFileModelsModalProps) {
             return (
               <div
                 key={model.id}
+                role="button"
+                tabIndex={0}
                 className={`${styles.item} ${excludedModel ? styles.itemExcluded : ''}`}
                 onClick={() => {
                   onCopyText(model.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onCopyText(model.id);
+                  }
                 }}
                 title={
                   excludedModel

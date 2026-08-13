@@ -131,9 +131,17 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
               return (
                 <div
                   key={bucket.time ?? index}
+                  role="button"
+                  tabIndex={0}
                   className={`${styles.column} ${activeIndex === index ? styles.columnActive : ''}`}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => setActiveIndex((current) => (current === index ? null : index))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setActiveIndex((current) => (current === index ? null : index));
+                    }
+                  }}
                 >
                   {/* 峰值直标放在 scaleY 容器之外，避免入场时被一起挤压 */}
                   {index === peakIndex && peakTotal > 0 && (

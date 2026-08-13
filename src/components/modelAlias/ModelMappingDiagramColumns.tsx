@@ -136,12 +136,20 @@ export function SourceColumn({
               if (el) sourceRefs.current?.set(source.id, el);
               else sourceRefs.current?.delete(source.id);
             }}
+            role="button"
+            tabIndex={0}
             className={`${styles.item} ${styles.sourceItem} ${
               draggedSource?.id === source.id ? styles.dragging : ''
             } ${dropTargetSource === source.id ? styles.dropTarget : ''} ${
               selectedSourceId === source.id ? styles.selected : ''
             }`}
             onClick={() => onSelectSource?.(source)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectSource?.(source);
+              }
+            }}
             draggable={draggable}
             onDragStart={(e) => onDragStart(e, source)}
             onDragEnd={onDragEnd}
@@ -221,12 +229,20 @@ export function AliasColumn({
             if (el) aliasRefs.current?.set(node.id, el);
             else aliasRefs.current?.delete(node.id);
           }}
+          role="button"
+          tabIndex={0}
           className={`${styles.item} ${styles.aliasItem} ${
             dropTargetAlias === node.alias ? styles.dropTarget : ''
           } ${draggedAlias === node.alias ? styles.dragging : ''} ${
             selectedAlias === node.alias ? styles.selected : ''
           }`}
           onClick={() => onSelectAlias?.(node.alias)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onSelectAlias?.(node.alias);
+            }
+          }}
           draggable={draggable}
           onDragStart={(e) => onDragStart(e, node.alias)}
           onDragEnd={onDragEnd}

@@ -268,7 +268,17 @@ export function ProviderResourceTable({
               >
                 <div className={styles.actions}>
                   {onToggleDisabled ? (
-                    <span className={styles.toggleWrap} onClick={(e) => e.stopPropagation()}>
+                    <span
+                      className={styles.toggleWrap}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }
+                      }}
+                      role="presentation"
+                    >
                       <ToggleSwitch
                         checked={!resource.disabled}
                         disabled={disableMutations}

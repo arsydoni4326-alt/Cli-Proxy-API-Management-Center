@@ -256,6 +256,13 @@ function ExcludedModelRow({
       className={rowClass}
       onMouseEnter={onHover}
       onClick={onToggle}
+      onKeyDown={(e) => {
+        // Fallback keyboard handler for direct focus; parent handles aria-activedescendant
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
     >
       <span className={styles.checkbox} aria-hidden="true">
         {excluded ? <IconCheck size={12} /> : null}
