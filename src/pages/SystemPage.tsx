@@ -13,6 +13,7 @@ import {
   useThemeStore,
 } from '@/stores';
 import { configApi, versionApi } from '@/services/api';
+import { statusApi, type BlockedIP } from '@/services/api/status';
 import { useApiKeysForModels } from '@/hooks/useApiKeysForModels';
 import { formatDateTimeValue } from '@/utils/format';
 import { classifyModels } from '@/utils/models';
@@ -94,6 +95,7 @@ export function SystemPage() {
   const [requestLogTouched, setRequestLogTouched] = useState(false);
   const [requestLogSaving, setRequestLogSaving] = useState(false);
   const [checkingVersion, setCheckingVersion] = useState(false);
+  const [blockedIps, setBlockedIps] = useState<BlockedIP[]>([]);
 
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -288,6 +290,29 @@ export function SystemPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.connectionStatus, auth.apiBase]);
 
+  useEffect(() => {
+    if (auth.connectionStatus !== 'connected') {
+      setBlockedIps([]);
+      return;
+    }
+    let cancelled = false;
+    statusApi
+      .get()
+      .then((data) => {
+        if (!cancelled) {
+          setBlockedIps(data?.blocked_ips ?? []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBlockedIps([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.connectionStatus, auth.apiBase]);
+
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>{t('system_info.title')}</h1>
@@ -338,6 +363,27 @@ export function SystemPage() {
               <div className={styles.tileLabel}>{t('connection.status')}</div>
               <div className={styles.tileValue}>{t(`common.${auth.connectionStatus}_status`)}</div>
               <div className={styles.tileSub}>{auth.apiBase || '-'}</div>
+            </div>
+
+            <div className={styles.infoTile}>
+              <div className={styles.tileLabel}>{t('system_info.blocked_ips')}</div>
+              <div className={styles.tileValue}>
+                {t('system_info.blocked_ips_count', { count: blockedIps.length })}
+              </div>
+              {blockedIps.length === 0 ? (
+                <div className={styles.tileSub}>{t('system_info.blocked_ips_none')}</div>
+              ) : (
+                <div className={styles.blockedIpList}>
+                  {blockedIps.map((entry) => (
+                    <div key={entry.ip} className={styles.blockedIpRow}>
+                      <span className={styles.blockedIpAddress}>{entry.ip}</span>
+                      <span className={styles.tileSub}>
+                        {t('system_info.blocked_ip_remaining', { remaining: entry.remaining })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </Card>

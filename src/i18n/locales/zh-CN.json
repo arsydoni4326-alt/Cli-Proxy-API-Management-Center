@@ -1450,7 +1450,11 @@
     "clear_login_title": "本地登录信息",
     "clear_login_desc": "清理本地保存的登录信息并退出登录。",
     "clear_login_button": "清理登录信息",
-    "clear_login_confirm": "确认清理本地登录信息并退出登录？"
+    "clear_login_confirm": "确认清理本地登录信息并退出登录？",
+    "blocked_ips": "已封禁 IP",
+    "blocked_ips_count": "已封禁 {{count}} 个",
+    "blocked_ips_none": "无封禁",
+    "blocked_ip_remaining": "剩余 {{remaining}}"
   },
   "notification": {
     "request_log_updated": "请求日志设置已更新",

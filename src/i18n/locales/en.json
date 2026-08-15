@@ -1450,7 +1450,11 @@
     "clear_login_title": "Local Login Data",
     "clear_login_desc": "Clear locally saved login data and sign out.",
     "clear_login_button": "Clear login data",
-    "clear_login_confirm": "Clear local login data and sign out now?"
+    "clear_login_confirm": "Clear local login data and sign out now?",
+    "blocked_ips": "Blocked IPs",
+    "blocked_ips_count": "{{count}} blocked",
+    "blocked_ips_none": "None blocked",
+    "blocked_ip_remaining": "{{remaining}} remaining"
   },
   "notification": {
     "request_log_updated": "Request logging setting updated",

@@ -1476,7 +1476,11 @@
     "clear_login_title": "本地登入資訊",
     "clear_login_desc": "清理本地儲存的登入資訊並登出。",
     "clear_login_button": "清理登入資訊",
-    "clear_login_confirm": "確認清理本地登入資訊並登出？"
+    "clear_login_confirm": "確認清理本地登入資訊並登出？",
+    "blocked_ips": "已封鎖 IP",
+    "blocked_ips_count": "已封鎖 {{count}} 個",
+    "blocked_ips_none": "無封鎖",
+    "blocked_ip_remaining": "剩餘 {{remaining}}"
   },
   "notification": {
     "request_log_updated": "請求記錄設定已更新",

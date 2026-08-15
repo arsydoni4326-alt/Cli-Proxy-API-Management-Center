@@ -1428,7 +1428,11 @@
     "clear_login_title": "Локальные данные входа",
     "clear_login_desc": "Очистите локально сохранённые данные входа и выполните выход.",
     "clear_login_button": "Очистить данные входа",
-    "clear_login_confirm": "Очистить локальные данные входа и выйти?"
+    "clear_login_confirm": "Очистить локальные данные входа и выйти?",
+    "blocked_ips": "Заблокированные IP",
+    "blocked_ips_count": "Заблокировано: {{count}}",
+    "blocked_ips_none": "Заблокированных нет",
+    "blocked_ip_remaining": "Осталось: {{remaining}}"
   },
   "notification": {
     "request_log_updated": "Настройка журналирования запросов обновлена",
