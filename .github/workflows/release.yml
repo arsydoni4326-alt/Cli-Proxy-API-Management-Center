@@ -43,6 +43,14 @@ jobs:
           mv index.html management.html
           ls -lh management.html
 
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0.24.0
+        with:
+          path: ./
+          format: cyclonedx-json
+          artifact-name: management_html_sbom
+          output-file: dist/management-html-sbom.cdx.json
+
       - name: Generate release notes
         run: |
           set -euo pipefail
@@ -60,7 +68,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/management.html
+          files: |
+            dist/management.html
+            dist/management-html-sbom.cdx.json
           body_path: release-notes.md
           draft: false
           prerelease: false
