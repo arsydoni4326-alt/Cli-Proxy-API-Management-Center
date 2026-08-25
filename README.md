@@ -13,6 +13,13 @@ Since version 6.0.19, the Web UI ships with the main program; access it via `/ma
 ### Backend version enforcement
 
 The UI **enforces the ≥ 7.1.0 floor at login**. It tracks the backend version from the `X-CPA-Version` response headers that CLI Proxy API sends on every Management API response, and compares it against the internal floor (`MIN_BACKEND_VERSION`, see `src/utils/version.ts`). Login **fails closed**: if the reported version is older than 7.1.0, or if no version is reported at all (e.g. a backend from before version headers existed), the connection is rejected with a distinct localized diagnostic — "The CLI Proxy API backend is too old or did not report its version. Please upgrade the backend to v7.1.0 or newer." — instead of a generic connection error. This check is evaluated once per login, immediately after the initial config fetch.
+## Sponsor
+
+[![https://go.apimart.ai/gh-cli-proxy-api-management-center](./assets/apimart-en.png)](https://go.apimart.ai/gh-cli-proxy-api-management-center)
+
+Thanks to APIMart for sponsoring this project!
+
+APIMart is a low-cost API platform for AI image & video generation — GPT-Image-2 from $0.006/image, 160+ images per dollar. One async API covers both image and video: submit a task, get an ID, fetch results via polling or callback. Batch tens of thousands of images without timeouts, switch models without changing code. Pay-as-you-go with no monthly fee — [sign up here](https://go.apimart.ai/gh-cli-proxy-api-management-center) to get started.
 
 ## What this is (and isn’t)
 

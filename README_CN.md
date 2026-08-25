@@ -13,6 +13,13 @@
 ### 后端版本强制要求
 
 登录时 Web UI 会**强制执行 ≥ 7.1.0 的最低版本要求**。UI 会从 CLI Proxy API 在每个 Management API 响应中携带的 `X-CPA-Version` 响应头中跟踪后端版本，并与内置下限比较（`MIN_BACKEND_VERSION`，见 `src/utils/version.ts`）。登录采用**失败即关闭（fail-closed）**策略：若上报版本低于 7.1.0，或后端完全未上报版本（例如引入版本响应头之前的旧版本），连接将被拒绝，并显示独立的本地化诊断信息——「CLI Proxy API 后端版本过低或未上报版本号，请将后端升级到 v7.1.0 或更高版本。」——而不是笼统的连接错误。该检查在每次登录时、初次拉取配置之后评估一次。
+## 赞助商
+
+[![https://go.apimart.ai/gh-cli-proxy-api-management-center](./assets/apimart-zh.png)](https://go.apimart.ai/gh-cli-proxy-api-management-center)
+
+感谢 APIMart 赞助了本项目！
+
+APIMart 是专注 AI 图片/视频生成的低价 API 平台，GPT-Image-2 低至 $0.006/张，1 美元可出图 160+ 张。图片、视频一套异步 API 通吃，提交任务拿 ID、回调取结果，跑批万张不超时、换模型不改代码。按量付费、无月费，通过[此注册链接](https://go.apimart.ai/gh-cli-proxy-api-management-center)注册即可开用。
 
 ## 这是什么（以及不是什么）
 
