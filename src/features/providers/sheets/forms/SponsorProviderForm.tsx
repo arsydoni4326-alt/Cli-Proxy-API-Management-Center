@@ -95,6 +95,7 @@ const emptySponsorKeyEntry = (
   disableCooling: false,
   priority: undefined,
   weight: undefined,
+  requestRetry: undefined,
   models: [emptyModel()],
 });
 
@@ -108,6 +109,7 @@ const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryF
   disableCooling: false,
   priority: undefined,
   weight: undefined,
+  requestRetry: undefined,
   models: [],
   headers: [],
   excludedModelsText: '',
@@ -183,6 +185,7 @@ const sponsorEntryFromProviderKey = (
   disableCooling: config.disableCooling === true,
   priority: config.priority,
   weight: config.weight,
+  requestRetry: config.requestRetry,
   models: modelsFromConfig(config.models),
 });
 
@@ -201,6 +204,7 @@ const sponsorEntryFromOpenAI = (
     disableCooling: config.disableCooling === true,
     priority: config.priority,
     weight: firstEntry?.weight,
+    requestRetry: firstEntry?.requestRetry,
     models: modelsFromConfig(config.models),
   };
 };
@@ -712,6 +716,31 @@ function SponsorKeyEntryCard({
             <span className={styles.labelHint}>{t('providersPage.form.weightHint')}</span>
           </div>
 
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${formId}-group-${index}-requestRetry`}>
+              {t('providersPage.form.requestRetry')}
+            </label>
+            <input
+              id={`${formId}-group-${index}-requestRetry`}
+              type="number"
+              step="1"
+              min="0"
+              className={styles.input}
+              value={entry.requestRetry ?? ''}
+              placeholder=""
+              onChange={(event) =>
+                updateEntry({
+                  requestRetry:
+                    event.target.value === '' ? undefined : Number(event.target.value),
+                })
+              }
+              disabled={mutating}
+            />
+            <span className={styles.labelHint}>
+              {t('providersPage.form.requestRetryHint')}
+            </span>
+          </div>
+
           <label className={styles.checkboxRow}>
             <input
               type="checkbox"
@@ -848,6 +877,15 @@ export function SponsorProviderForm({
       entries.some((entry) => entry.weight !== undefined && entry.weight > MAX_CREDENTIAL_WEIGHT)
     ) {
       return t('providersPage.form.validation.weightMax', { max: MAX_CREDENTIAL_WEIGHT });
+    }
+    if (
+      entries.some(
+        (entry) =>
+          entry.requestRetry !== undefined &&
+          (!Number.isSafeInteger(entry.requestRetry) || entry.requestRetry < 0)
+      )
+    ) {
+      return t('providersPage.form.validation.requestRetryNonNegative');
     }
     return null;
   };

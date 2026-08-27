@@ -188,6 +188,7 @@ const buildProviderKeyConfig = (
     apiKey: apiKeyChanged ? input.apiKey.trim() : (existing?.apiKey ?? ''),
     priority: input.priority,
     weight: input.weight,
+    requestRetry: input.requestRetry,
     prefix: input.prefix.trim() || undefined,
     baseUrl: input.baseUrl.trim() || undefined,
     proxyUrl: input.proxyUrl.trim() || undefined,
@@ -242,6 +243,7 @@ const buildOpenAIConfig = (
           apiKey: entry.apiKey.trim() || fallbackApiKey,
           proxyUrl: entry.proxyUrl.trim() || undefined,
           weight: entry.weight,
+          requestRetry: entry.requestRetry,
           authIndex: entry.authIndex?.trim() || undefined,
         };
       })
@@ -320,6 +322,7 @@ const buildSponsorProviderKeyConfig = (
     prefix: entry.prefix.trim() || undefined,
     priority: entry.priority,
     weight: entry.weight,
+    requestRetry: entry.requestRetry,
     disableCooling: entry.disableCooling === true,
     excludedModels: excluded,
     models: models.length ? models : undefined,
@@ -346,6 +349,7 @@ const buildSponsorGeminiConfig = (
     prefix: entry.prefix.trim() || undefined,
     priority: entry.priority,
     weight: entry.weight,
+    requestRetry: entry.requestRetry,
     disableCooling: entry.disableCooling === true,
     excludedModels: excluded,
     models: models.length ? models : undefined,

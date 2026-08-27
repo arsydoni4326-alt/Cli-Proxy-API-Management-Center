@@ -256,6 +256,27 @@ export function ApiKeyEntriesEditor({
                   />
                   <span className={styles.labelHint}>{t('providersPage.form.weightHint')}</span>
                 </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>{t('providersPage.form.requestRetry')}</label>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={entry.requestRetry ?? ''}
+                    onChange={(e) =>
+                      onUpdate(idx, {
+                        requestRetry:
+                          e.target.value === '' ? undefined : Number(e.target.value),
+                      })
+                    }
+                    disabled={mutating}
+                    placeholder=""
+                  />
+                  <span className={styles.labelHint}>
+                    {t('providersPage.form.requestRetryHint')}
+                  </span>
+                </div>
               </div>
             ) : null}
           </div>

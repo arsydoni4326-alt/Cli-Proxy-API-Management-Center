@@ -180,6 +180,7 @@ export interface SponsorKeyEntryInput {
   disableCooling?: boolean;
   priority?: number;
   weight?: number;
+  requestRetry?: number;
   models: ModelEntryInput[];
 }
 
@@ -188,6 +189,8 @@ export interface ApiKeyEntryInput {
   existingApiKey?: string;
   proxyUrl: string;
   weight?: number;
+  /** Per-credential retry round override (nil/neg → global, 0 → disable, positive → override). */
+  requestRetry?: number;
   authIndex?: string;
 }
 
@@ -210,6 +213,8 @@ export interface ProviderEntryFormInput {
   disableCooling?: boolean;
   priority?: number;
   weight?: number;
+  /** Per-credential retry round override (nil/neg → global, 0 → disable, positive → override). */
+  requestRetry?: number;
 
   /** 高级折叠区 */
   models: ModelEntryInput[];

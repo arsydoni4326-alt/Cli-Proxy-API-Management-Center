@@ -1671,6 +1671,8 @@
       "priority": "优先级",
       "weight": "调度权重",
       "weightHint": "默认 1 · ≤ 0 时不参与 · 最大 1,000,000",
+      "requestRetry": "重试轮次",
+      "requestRetryHint": "空 → 全局 · 0 → 禁用 · ≥ 1 → 覆盖",
       "disabled": "停用此条目",
       "disabledHint": "停用后不会被网关使用",
       "websockets": "启用 WebSockets",
@@ -1726,7 +1728,8 @@
         "apiKeyRequired": "至少填写一个 API 密钥",
         "baseUrlRequired": "服务地址必填",
         "weightInteger": "调度权重必须是整数",
-        "weightMax": "调度权重不能超过 {{max}}"
+        "weightMax": "调度权重不能超过 {{max}}",
+        "requestRetryNonNegative": "重试轮次必须是非负整数"
       }
     },
     "delete": {

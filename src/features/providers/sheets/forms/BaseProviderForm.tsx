@@ -58,6 +58,7 @@ const emptyApiKeyEntry = (): ApiKeyEntryInput => ({
   apiKey: '',
   proxyUrl: '',
   weight: undefined,
+  requestRetry: undefined,
 });
 const XAI_API_BASE_URL = 'https://api.x.ai/v1';
 
@@ -89,6 +90,7 @@ function buildInitialForm(
       disableCooling: false,
       priority: undefined,
       weight: undefined,
+      requestRetry: undefined,
       models: [emptyModel()],
       headers: [emptyHeader()],
       excludedModelsText: '',
@@ -144,6 +146,7 @@ function buildInitialForm(
             existingApiKey: entry.apiKey,
             proxyUrl: entry.proxyUrl ?? '',
             weight: entry.weight,
+            requestRetry: entry.requestRetry,
             authIndex: entry.authIndex,
           }))
         : [emptyApiKeyEntry()],
@@ -167,6 +170,7 @@ function buildInitialForm(
     disableCooling: cfg.disableCooling === true,
     priority: cfg.priority,
     weight: cfg.weight,
+    requestRetry: cfg.requestRetry,
     models: cfg.models?.length
       ? cfg.models.map((m) => ({
           name: m.name,
@@ -410,6 +414,19 @@ export function BaseProviderForm({
     }
     if (weights.some((weight) => weight !== undefined && weight > MAX_CREDENTIAL_WEIGHT)) {
       return t('providersPage.form.validation.weightMax', { max: MAX_CREDENTIAL_WEIGHT });
+    }
+    const requestRetries = [
+      ...(brand === 'openaiCompatibility'
+        ? (form.apiKeyEntries ?? []).map((entry) => entry.requestRetry)
+        : []),
+      ...(brand !== 'openaiCompatibility' ? [form.requestRetry] : []),
+    ];
+    if (
+      requestRetries.some(
+        (rr) => rr !== undefined && (!Number.isSafeInteger(rr) || rr < 0)
+      )
+    ) {
+      return t('providersPage.form.validation.requestRetryNonNegative');
     }
     return null;
   };
@@ -667,6 +684,33 @@ export function BaseProviderForm({
               disabled={mutating}
             />
             <span className={styles.labelHint}>{t('providersPage.form.weightHint')}</span>
+          </div>
+        ) : null}
+
+        {brand !== 'openaiCompatibility' ? (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${fid}-requestRetry`}>
+              {t('providersPage.form.requestRetry')}
+            </label>
+            <input
+              id={`${fid}-requestRetry`}
+              type="number"
+              step="1"
+              min="0"
+              className={styles.input}
+              value={form.requestRetry ?? ''}
+              placeholder=""
+              onChange={(e) =>
+                updateField(
+                  'requestRetry',
+                  e.target.value === '' ? undefined : Number(e.target.value)
+                )
+              }
+              disabled={mutating}
+            />
+            <span className={styles.labelHint}>
+              {t('providersPage.form.requestRetryHint')}
+            </span>
           </div>
         ) : null}
 

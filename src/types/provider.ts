@@ -16,6 +16,8 @@ export interface ApiKeyEntry {
   apiKey: string;
   proxyUrl?: string;
   weight?: number;
+  /** Per-credential retry round override (nil/neg → global, 0 → disable, positive → override). */
+  requestRetry?: number;
   authIndex?: string;
 }
 
@@ -30,6 +32,8 @@ export interface GeminiKeyConfig {
   apiKey: string;
   priority?: number;
   weight?: number;
+  /** Per-credential retry round override (nil/neg → global, 0 → disable, positive → override). */
+  requestRetry?: number;
   prefix?: string;
   baseUrl?: string;
   proxyUrl?: string;
@@ -44,6 +48,8 @@ export interface ProviderKeyConfig {
   apiKey: string;
   priority?: number;
   weight?: number;
+  /** Per-credential retry round override (nil/neg → global, 0 → disable, positive → override). */
+  requestRetry?: number;
   prefix?: string;
   baseUrl?: string;
   websockets?: boolean;
