@@ -2,11 +2,7 @@
 
 ## Current objectives
 
-- Document the changes introduced by the `origin/main` merge into `dev`
-  (merge commit `b7764c7`, 2026-08-09) so reviewers do not need to read
-  git history to understand what changed.
-- Backfill user/developer documentation gaps: changelog, contributing guide,
-  docs/ seeding, future-work recommendations.
+- Live Flow animation enhancements: SVG glow effects, breathing hub, animated dash pulses, node hover effects, table entry animations, radial gradient background
 
 ## Completed work
 

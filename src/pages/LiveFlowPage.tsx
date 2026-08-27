@@ -274,6 +274,22 @@ export function LiveFlowPage() {
         </div>
       </div>
 
+      {/* SVG filter definitions for pulse glow effects — referenced by CSS filter: url(#pulseGlow) */}
+      <svg
+        style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="pulseGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
       <Card className={styles.flowCard}>
         <div className={styles.flowCanvas}>
           <ReactFlow
@@ -341,10 +357,14 @@ export function LiveFlowPage() {
               </tr>
             </thead>
             <tbody>
-              {displayedEvents.map((event) => {
+              {displayedEvents.map((event, idx) => {
                 const tone = statusTone(event.status);
                 return (
-                  <tr key={event.id}>
+                  <tr
+                    key={event.id}
+                    className={styles.tableRow}
+                    style={{ animationDelay: `${Math.min(idx * 20, 200)}ms` }}
+                  >
                     <td>{new Date(event.ts).toLocaleTimeString()}</td>
                     <td>
                       {isWsFlowEvent(event) ? (
