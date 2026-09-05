@@ -90,6 +90,7 @@ const emptySponsorKeyEntry = (
   existingApiKey: '',
   baseUrl: definition.baseUrlOptions[0]?.baseUrl ?? '',
   proxyUrl: '',
+  directConnection: false,
   prefix: '',
   disabled: false,
   disableCooling: false,
@@ -103,6 +104,7 @@ const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryF
   name: '',
   baseUrl: '',
   proxyUrl: '',
+  directConnection: false,
   prefix: '',
   disabled: false,
   disableCooling: false,
@@ -126,6 +128,16 @@ const protocolUrlForEntry = (
   entry: SponsorKeyEntryInput,
   definition: SponsorProviderDefinition
 ): string => sponsorProtocolUrl(definition.getProtocolUrls(entry.baseUrl), entry.protocol);
+
+/**
+ * The backend treats `proxy-url: "direct"` (or `"none"`) as an explicit signal to
+ * bypass both the global proxy and environment proxies. A provider is considered
+ * "direct connection" when its effective proxy URL is exactly that marker.
+ */
+const isDirectProxyValue = (value?: string | null): boolean => {
+  const trimmed = (value ?? '').trim().toLowerCase();
+  return trimmed === 'direct' || trimmed === 'none';
+};
 
 const formatUsageAmount = (value: ApiKeyFunUsageSummary['remaining'], locale: string): string => {
   if (value === null) return '--';
@@ -178,6 +190,7 @@ const sponsorEntryFromProviderKey = (
   existingApiKey: config.apiKey ?? '',
   baseUrl: definition.resolveBaseUrl(config.baseUrl),
   proxyUrl: config.proxyUrl ?? '',
+  directConnection: isDirectProxyValue(config.proxyUrl),
   prefix: config.prefix ?? '',
   disabled: hasDisableAllModelsRule(config.excludedModels),
   disableCooling: config.disableCooling === true,
@@ -196,6 +209,7 @@ const sponsorEntryFromOpenAI = (
     existingApiKey: firstEntry?.apiKey ?? '',
     baseUrl: definition.resolveBaseUrl(config.baseUrl),
     proxyUrl: firstEntry?.proxyUrl ?? '',
+    directConnection: isDirectProxyValue(firstEntry?.proxyUrl),
     prefix: config.prefix ?? '',
     disabled: config.disabled === true,
     disableCooling: config.disableCooling === true,
@@ -644,6 +658,20 @@ function SponsorKeyEntryCard({
             </div>
           ) : null}
 
+          <label className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              className={styles.checkboxBox}
+              checked={entry.directConnection ?? false}
+              disabled={mutating}
+              onChange={(event) => updateEntry({ directConnection: event.target.checked })}
+            />
+            <span className={styles.checkboxText}>
+              <span>{t('providersPage.form.directConnection')}</span>
+              <small>{t('providersPage.form.directConnectionHint')}</small>
+            </span>
+          </label>
+
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${formId}-group-${index}-proxy`}>
               {t('providersPage.form.proxyUrl')}
@@ -654,8 +682,13 @@ function SponsorKeyEntryCard({
               value={entry.proxyUrl}
               onChange={(event) => updateEntry({ proxyUrl: event.target.value })}
               placeholder="http://127.0.0.1:7890"
-              disabled={mutating}
+              disabled={mutating || entry.directConnection === true}
             />
+            {entry.directConnection === true ? (
+              <span className={styles.labelHint}>
+                {t('providersPage.form.directConnectionOverridesProxyUrl')}
+              </span>
+            ) : null}
           </div>
 
           <div className={styles.fieldRow}>
