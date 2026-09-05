@@ -180,6 +180,30 @@ const buildModelAliases = (
     })
     .filter((m) => m.name);
 
+/**
+ * Resolves the effective `proxy-url` value for a provider/credential entry.
+ *
+ * - `directConnection === true` → `"direct"`: traffic bypasses both the global
+ *   `proxy-url` and environment proxies (the backend's documented direct mode).
+ * - `directConnection === false` (or omitted) → the explicit proxy URL is kept;
+ *   a previously persisted `"direct"`/`"none"` marker is cleared so traffic
+ *   inherits the system proxy. Empty input also inherits the system proxy.
+ */
+export const resolveProxyUrl = (
+  directConnection: boolean | undefined,
+  proxyUrl: string | undefined
+): string | undefined => {
+  if (directConnection === true) {
+    return 'direct';
+  }
+  const trimmed = (proxyUrl ?? '').trim();
+  const normalized = trimmed.toLowerCase();
+  if (normalized === 'direct' || normalized === 'none') {
+    return undefined;
+  }
+  return trimmed || undefined;
+};
+
 const buildProviderKeyConfig = (
   brand: 'gemini' | 'interactions' | 'codex' | 'xai' | 'claude' | 'vertex',
   input: ProviderEntryFormInput,
@@ -195,7 +219,7 @@ const buildProviderKeyConfig = (
     weight: input.weight,
     prefix: input.prefix.trim() || undefined,
     baseUrl: input.baseUrl.trim() || undefined,
-    proxyUrl: input.proxyUrl.trim() || undefined,
+    proxyUrl: resolveProxyUrl(input.directConnection, input.proxyUrl),
     models: models.length ? models : undefined,
     headers: Object.keys(headers).length ? headers : undefined,
     excludedModels: excluded,
@@ -245,7 +269,7 @@ const buildOpenAIConfig = (
           entry.existingApiKey?.trim() || existing?.apiKeyEntries?.[index]?.apiKey?.trim() || '';
         return {
           apiKey: entry.apiKey.trim() || fallbackApiKey,
-          proxyUrl: entry.proxyUrl.trim() || undefined,
+          proxyUrl: resolveProxyUrl(input.directConnection, entry.proxyUrl),
           weight: entry.weight,
           authIndex: entry.authIndex?.trim() || undefined,
         };
@@ -285,7 +309,7 @@ const buildSponsorOpenAIConfig = (
         {
           ...(firstExistingEntry ?? {}),
           apiKey,
-          proxyUrl: entry.proxyUrl.trim() || undefined,
+          proxyUrl: resolveProxyUrl(entry.directConnection, entry.proxyUrl),
           weight: entry.weight,
         },
       ]
@@ -321,7 +345,7 @@ const buildSponsorProviderKeyConfig = (
     ...(existing ?? {}),
     apiKey,
     baseUrl: protocol === 'claude' ? urls.anthropic : urls.codex,
-    proxyUrl: entry.proxyUrl.trim() || undefined,
+    proxyUrl: resolveProxyUrl(entry.directConnection, entry.proxyUrl),
     prefix: entry.prefix.trim() || undefined,
     priority: entry.priority,
     weight: entry.weight,
@@ -347,7 +371,7 @@ const buildSponsorGeminiConfig = (
     ...(existing ?? {}),
     apiKey,
     baseUrl: urls.gemini,
-    proxyUrl: entry.proxyUrl.trim() || undefined,
+    proxyUrl: resolveProxyUrl(entry.directConnection, entry.proxyUrl),
     prefix: entry.prefix.trim() || undefined,
     priority: entry.priority,
     weight: entry.weight,

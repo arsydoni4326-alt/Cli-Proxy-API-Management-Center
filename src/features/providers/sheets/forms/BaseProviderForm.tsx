@@ -69,6 +69,16 @@ const formatJsonObject = (value?: Record<string, unknown>): string => {
   return JSON.stringify(value, null, 2);
 };
 
+/**
+ * The backend treats `proxy-url: "direct"` (or `"none"`) as an explicit signal to
+ * bypass both the global proxy and environment proxies. A provider is considered
+ * "direct connection" when its effective proxy URL is exactly that marker.
+ */
+const isDirectProxyValue = (value?: string | null): boolean => {
+  const trimmed = (value ?? '').trim().toLowerCase();
+  return trimmed === 'direct' || trimmed === 'none';
+};
+
 const isClaudeLikeBrand = (brand: ProviderBrand): boolean =>
   brand === 'claude' || brand === 'claudeApi';
 
@@ -84,6 +94,7 @@ function buildInitialForm(
       baseUrl:
         brand === 'claudeApi' ? CLAUDE_API_BASE_URL : brand === 'xai' ? XAI_API_BASE_URL : '',
       proxyUrl: '',
+      directConnection: false,
       prefix: '',
       disabled: false,
       disableCooling: false,
@@ -113,11 +124,22 @@ function buildInitialForm(
   const raw = resource.raw;
   if (brand === 'openaiCompatibility') {
     const cfg = raw as OpenAIProviderConfig;
+    const apiKeyEntries = cfg.apiKeyEntries?.length
+      ? cfg.apiKeyEntries.map((entry) => ({
+          apiKey: '',
+          existingApiKey: entry.apiKey,
+          proxyUrl: entry.proxyUrl ?? '',
+          weight: entry.weight,
+          authIndex: entry.authIndex,
+        }))
+      : [emptyApiKeyEntry()];
     return {
       apiKey: '',
       name: cfg.name ?? '',
       baseUrl: cfg.baseUrl ?? '',
       proxyUrl: '',
+      directConnection:
+        apiKeyEntries.length > 0 && apiKeyEntries.every((entry) => isDirectProxyValue(entry.proxyUrl)),
       prefix: cfg.prefix ?? '',
       disabled: cfg.disabled === true,
       disableCooling: cfg.disableCooling === true,
@@ -138,15 +160,7 @@ function buildInitialForm(
         : [emptyHeader()],
       excludedModelsText: '',
       testModel: cfg.testModel ?? '',
-      apiKeyEntries: cfg.apiKeyEntries?.length
-        ? cfg.apiKeyEntries.map((entry) => ({
-            apiKey: '',
-            existingApiKey: entry.apiKey,
-            proxyUrl: entry.proxyUrl ?? '',
-            weight: entry.weight,
-            authIndex: entry.authIndex,
-          }))
-        : [emptyApiKeyEntry()],
+      apiKeyEntries,
     };
   }
 
@@ -162,6 +176,7 @@ function buildInitialForm(
     name: '',
     baseUrl: cfg.baseUrl ?? '',
     proxyUrl: cfg.proxyUrl ?? '',
+    directConnection: isDirectProxyValue(cfg.proxyUrl),
     prefix: cfg.prefix ?? '',
     disabled,
     disableCooling: cfg.disableCooling === true,
@@ -595,6 +610,20 @@ export function BaseProviderForm({
           </div>
         ) : null}
 
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            className={styles.checkboxBox}
+            checked={form.directConnection}
+            disabled={mutating}
+            onChange={(e) => updateField('directConnection', e.target.checked)}
+          />
+          <span className={styles.checkboxText}>
+            <span>{t('providersPage.form.directConnection')}</span>
+            <small>{t('providersPage.form.directConnectionHint')}</small>
+          </span>
+        </label>
+
         {descriptor.supportsProxyUrl ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-proxy`}>
@@ -606,8 +635,13 @@ export function BaseProviderForm({
               value={form.proxyUrl}
               onChange={(e) => updateField('proxyUrl', e.target.value)}
               placeholder="http://127.0.0.1:7890"
-              disabled={mutating}
+              disabled={mutating || form.directConnection}
             />
+            {form.directConnection ? (
+              <span className={styles.labelHint}>
+                {t('providersPage.form.directConnectionOverridesProxyUrl')}
+              </span>
+            ) : null}
           </div>
         ) : null}
 

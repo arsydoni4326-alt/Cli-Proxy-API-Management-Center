@@ -175,6 +175,8 @@ export interface SponsorKeyEntryInput {
   existingApiKey?: string;
   baseUrl: string;
   proxyUrl: string;
+  /** When true, this entry bypasses the system proxy (persisted as proxy-url: "direct"). */
+  directConnection?: boolean;
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
@@ -205,6 +207,11 @@ export interface ProviderEntryFormInput {
   name: string;
   baseUrl: string;
   proxyUrl: string;
+  /**
+   * When true, provider traffic bypasses the system proxy and connects directly.
+   * Persisted as `proxy-url: "direct"` (checked) or cleared to inherit the system proxy (unchecked).
+   */
+  directConnection: boolean;
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
