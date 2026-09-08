@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
@@ -27,13 +27,13 @@ function RootShell() {
       }
 
       const currentCommit = auth.serverCommit;
-      const updateAvailable = currentCommit && latestCommit && currentCommit !== latestCommit;
+      const updateAvailable = !!(currentCommit && latestCommit && currentCommit !== latestCommit);
       
       setUpdateInfo({
         updateAvailable,
-        latestVersion: latestVersion || null,
-        latestCommit: latestCommit || null,
-        currentCommit: currentCommit || null,
+        latestVersion: typeof latestVersion === 'string' ? latestVersion : null,
+        latestCommit: typeof latestCommit === 'string' ? latestCommit : null,
+        currentCommit: typeof currentCommit === 'string' ? currentCommit : null,
       });
 
       // Always show modal after checking

@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores';
  * Hook that triggers update check on page navigation/refresh
  */
 export function useUpdateCheckOnNavigation() {
-  const { updateInfo, setUpdateModalOpen, setUpdateInfo } = useUpdateStore();
+  const { setUpdateModalOpen, setUpdateInfo } = useUpdateStore();
   const auth = useAuthStore();
   const lastCheckedRef = useRef<number>(0);
   const isNavigatingRef = useRef(false);
