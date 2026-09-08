@@ -92,6 +92,8 @@ Check the CLI Proxy API server documentation/config comments for the full authen
 - **Logs**: tail logs with incremental polling, auto-refresh, search, hide management traffic, clear logs; download request error log files.
 - **System**: quick links, update check, request logging toggle, local login data cleanup, and fetch `/v1/models` (grouped view). Requires at least one proxy API key to query models.
 
+  The update notification modal appears only on initial page load and browser refresh (F5 / Ctrl+R / reload). It is not triggered by client-side hash navigation between pages (for example, moving from `#/ai-providers` to `#/auth-files`). When an update is available, the modal shows once per session until it is dismissed, and a manual “Check again” action is available on the System page.
+
 ## Tech Stack
 
 - React 19 + TypeScript 6.0

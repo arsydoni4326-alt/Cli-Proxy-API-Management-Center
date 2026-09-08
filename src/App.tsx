@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotificationContainer } from '@/components/common/NotificationContainer';
 import { ConfirmationModal } from '@/components/common/ConfirmationModal';
@@ -14,7 +13,6 @@ import { useAuthStore } from '@/stores';
 function RootShell() {
   const { updateInfo, updateModalOpen, setUpdateModalOpen, setUpdateInfo } = useUpdateStore();
   const auth = useAuthStore();
-  const location = useLocation();
 
   const checkForUpdates = useCallback(async () => {
     try {
@@ -36,32 +34,19 @@ function RootShell() {
         currentCommit: typeof currentCommit === 'string' ? currentCommit : null,
       });
 
-      // Always show modal after checking
-      setUpdateModalOpen(true);
+      // Only show the update notification modal when an update is actually available.
+      // This runs on initial mount (first visit / hard refresh) only, so client-side
+      // hash navigation (#/ai-providers -> #/auth-files) will never trigger it.
+      if (updateAvailable) {
+        setUpdateModalOpen(true);
+      }
     } catch (error) {
       console.error('Update check failed:', error);
     }
   }, [auth.serverCommit, setUpdateInfo, setUpdateModalOpen]);
 
-  // Check for update on every page navigation/refresh
-  useEffect(() => {
-    if (auth.connectionStatus === 'connected') {
-      checkForUpdates();
-    }
-  }, [location.key, auth.connectionStatus, checkForUpdates]);
 
-  // Check on window focus (in case update happened while away)
-  useEffect(() => {
-    const handleFocus = () => {
-      if (auth.connectionStatus === 'connected') {
-        checkForUpdates();
-      }
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [auth.connectionStatus, checkForUpdates]);
-
-  // Always show modal on initial mount (for hard page refreshes F5)
+  // Check on initial mount (for hard page refreshes F5)
   useEffect(() => {
     if (auth.connectionStatus === 'connected') {
       checkForUpdates();
