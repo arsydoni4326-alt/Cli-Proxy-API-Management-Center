@@ -1769,12 +1769,17 @@
     },
     "update_modal": {
       "title": "有可用更新",
-      "message": "新版本 ({version}，提交 {commit}) 已发布。請更新您的應用程序。",
-      "current_version": "當前版本：{version}",
+      "message": "上游儲存庫有可用更新：{{version}}（提交 {{commit}}）。",
+      "current_version": "目前版本：{{version}}",
       "dismiss": "忽略",
       "check_again": "重新檢查",
       "view_repo": "在 GitHub 上查看",
-      "show_changelog": "顯示更新日誌"
+      "show_changelog": "顯示更新日誌",
+      "hide_changelog": "隱藏更新日誌",
+      "changelog_title": "更新日誌",
+      "changelog_description": "版本 {{version}} 的發行說明可在專案更新日誌中查看。",
+      "view_changelog": "在 GitHub 上查看完整更新日誌",
+      "version_unknown": "未知"
     }
   }
 }

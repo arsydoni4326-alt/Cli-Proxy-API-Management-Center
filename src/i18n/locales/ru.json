@@ -1708,12 +1708,17 @@
     },
     "update_modal": {
       "title": "Доступно обновление",
-      "message": "Доступна новая версия ({version}, коммит {commit}). Пожалуйста, обновите приложение.",
-      "current_version": "Текущая версия: {version}",
+      "message": "Доступно обновление из upstream-репозитория: {{version}} (коммит {{commit}}).",
+      "current_version": "Текущая версия: {{version}}",
       "dismiss": "Закрыть",
       "check_again": "Проверить снова",
       "view_repo": "Посмотреть на GitHub",
-      "show_changelog": "Показать журнал изменений"
+      "show_changelog": "Показать журнал изменений",
+      "hide_changelog": "Скрыть журнал изменений",
+      "changelog_title": "Журнал изменений",
+      "changelog_description": "Примечания к выпуску {{version}} доступны в журнале изменений проекта.",
+      "view_changelog": "Открыть полный журнал изменений на GitHub",
+      "version_unknown": "Неизвестно"
     }
   }
 }

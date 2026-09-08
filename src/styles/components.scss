@@ -747,6 +747,12 @@ textarea {
     white-space: pre-wrap;
     text-align: left;
 
+    h3 {
+      margin: 0 0 $spacing-sm;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
     p {
       margin: 0 0 $spacing-sm 0;
 

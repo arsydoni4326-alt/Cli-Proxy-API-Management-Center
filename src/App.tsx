@@ -1,32 +1,33 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotificationContainer } from '@/components/common/NotificationContainer';
 import { ConfirmationModal } from '@/components/common/ConfirmationModal';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
-import { useLanguageStore, useThemeStore, useUpdateStore } from '@/stores';
+import { useAuthStore, useLanguageStore, useThemeStore, useUpdateStore } from '@/stores';
 import { versionApi } from '@/services/api';
 import { UpdateModal } from '@/components/common/UpdateModal';
-import { useAuthStore } from '@/stores';
+import { shouldCheckInitialUpdate } from '@/utils/updateNotification';
 
 function RootShell() {
   const { updateInfo, updateModalOpen, setUpdateModalOpen, setUpdateInfo } = useUpdateStore();
   const auth = useAuthStore();
+  const hasCheckedInitialUpdateRef = useRef(false);
 
   const checkForUpdates = useCallback(async () => {
     try {
       const data = await versionApi.checkLatest();
       const latestVersion = data?.['latest-version'] ?? data?.latest_version ?? data?.latest ?? '';
       const latestCommit = data?.['latest-commit'] ?? data?.latest_commit ?? '';
-      
+
       if (!latestVersion && !latestCommit) {
         return;
       }
 
       const currentCommit = auth.serverCommit;
       const updateAvailable = !!(currentCommit && latestCommit && currentCommit !== latestCommit);
-      
+
       setUpdateInfo({
         updateAvailable,
         latestVersion: typeof latestVersion === 'string' ? latestVersion : null,
@@ -44,14 +45,21 @@ function RootShell() {
       console.error('Update check failed:', error);
     }
   }, [auth.serverCommit, setUpdateInfo, setUpdateModalOpen]);
-
-
-  // Check on initial mount (for hard page refreshes F5)
+  // A hash-route change keeps RootShell mounted. This ref therefore permits one automatic
+  // check for the initial browser document only, after its first successful connection.
   useEffect(() => {
-    if (auth.connectionStatus === 'connected') {
-      checkForUpdates();
+    if (
+      !shouldCheckInitialUpdate({
+        hasChecked: hasCheckedInitialUpdateRef.current,
+        connectionStatus: auth.connectionStatus,
+      })
+    ) {
+      return;
     }
-  }, []);  // Empty dependency array - runs once on mount
+
+    hasCheckedInitialUpdateRef.current = true;
+    void checkForUpdates();
+  }, [auth.connectionStatus, checkForUpdates]);
 
   return (
     <>
