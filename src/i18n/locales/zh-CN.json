@@ -1747,7 +1747,8 @@
       "current_version": "当前版本：{version}",
       "dismiss": "忽略",
       "check_again": "重新检查",
-      "view_repo": "在 GitHub 上查看"
+      "view_repo": "在 GitHub 上查看",
+      "show_changelog": "显示更新日志"
     }
   }
 }

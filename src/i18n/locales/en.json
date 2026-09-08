@@ -1722,7 +1722,8 @@
       "current_version": "Current version: {version}",
       "dismiss": "Dismiss",
       "check_again": "Check Again",
-      "view_repo": "View on GitHub"
+      "view_repo": "View on GitHub",
+      "show_changelog": "Show changelog"
     }
   }
 }

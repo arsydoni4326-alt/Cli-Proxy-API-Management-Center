@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { IconGithub } from '@/components/ui/icons';
 import { useAuthStore } from '@/stores';
+import { changelogContent } from './updateChangelog';
 
 interface UpdateModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface UpdateModalProps {
 export function UpdateModal({ isOpen, onClose, latestVersion, latestCommit, onCheckUpdate }: UpdateModalProps) {
   const { t } = useTranslation();
   const serverVersion = useAuthStore((state) => state.serverVersion);
+  const [expandedChangelog, setExpandedChangelog] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,6 +48,21 @@ export function UpdateModal({ isOpen, onClose, latestVersion, latestCommit, onCh
           <p className="update-modal-current">
             {t('update_modal.current_version', { version: serverVersion || 'Unknown' })}
           </p>
+        </div>
+        <div className="update-modal-changelog">
+          <button
+            type="button"
+            className="update-modal-changelog-toggle"
+            onClick={() => setExpandedChangelog(!expandedChangelog)}
+          >
+            {t('update_modal.show_changelog')}
+            <span className={`chevron ${expandedChangelog ? 'expanded' : ''}`}>▼</span>
+          </button>
+          {expandedChangelog && (
+            <div className="update-modal-changelog-content">
+              {changelogContent(latestVersion)}
+            </div>
+          )}
         </div>
         <div className="update-modal-actions">
           <Button variant="secondary" onClick={onClose}>

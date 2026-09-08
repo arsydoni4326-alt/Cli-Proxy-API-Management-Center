@@ -1712,7 +1712,8 @@
       "current_version": "Текущая версия: {version}",
       "dismiss": "Закрыть",
       "check_again": "Проверить снова",
-      "view_repo": "Посмотреть на GitHub"
+      "view_repo": "Посмотреть на GitHub",
+      "show_changelog": "Показать журнал изменений"
     }
   }
 }
