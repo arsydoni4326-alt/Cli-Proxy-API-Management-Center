@@ -23,6 +23,7 @@ interface AuthStoreState extends AuthState {
   checkAuth: () => Promise<boolean>;
   restoreSession: () => Promise<boolean>;
   updateServerVersion: (version: string | null, buildDate?: string | null) => void;
+  updateServerCommit: (commit: string | null) => void;
   updateServerPluginSupport: (supportsPlugin: boolean) => void;
 }
 
@@ -38,6 +39,7 @@ export const useAuthStore = create<AuthStoreState>()(
       rememberPassword: false,
       serverVersion: null,
       serverBuildDate: null,
+      serverCommit: null,
       supportsPlugin: false,
       connectionStatus: 'disconnected',
 
@@ -100,6 +102,7 @@ export const useAuthStore = create<AuthStoreState>()(
             connectionStatus: 'connecting',
             serverVersion: null,
             serverBuildDate: null,
+            serverCommit: null,
             supportsPlugin: false,
           });
           useModelsStore.getState().clearCache();
@@ -145,6 +148,7 @@ export const useAuthStore = create<AuthStoreState>()(
           managementKey: '',
           serverVersion: null,
           serverBuildDate: null,
+          serverCommit: null,
           supportsPlugin: false,
           connectionStatus: 'disconnected',
         });
@@ -191,6 +195,13 @@ export const useAuthStore = create<AuthStoreState>()(
         });
       },
 
+      // 更新服务器提交
+      updateServerCommit: (commit) => {
+        set({
+          serverCommit: commit || null,
+        });
+      },
+
       updateServerPluginSupport: (supportsPlugin) => {
         set({ supportsPlugin });
       },
@@ -215,6 +226,7 @@ export const useAuthStore = create<AuthStoreState>()(
         rememberPassword: state.rememberPassword,
         serverVersion: state.serverVersion,
         serverBuildDate: state.serverBuildDate,
+        serverCommit: state.serverCommit,
       }),
     }
   )
@@ -229,6 +241,11 @@ if (typeof window !== 'undefined') {
   window.addEventListener('server-version-update', ((e: CustomEvent) => {
     const detail = e.detail || {};
     useAuthStore.getState().updateServerVersion(detail.version || null, detail.buildDate || null);
+  }) as EventListener);
+
+  window.addEventListener('server-commit-update', ((e: CustomEvent) => {
+    const detail = e.detail || {};
+    useAuthStore.getState().updateServerCommit(detail.commit || null);
   }) as EventListener);
 
   window.addEventListener('server-plugin-support-update', ((e: CustomEvent) => {

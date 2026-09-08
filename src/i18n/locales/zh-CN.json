@@ -1736,3 +1736,11 @@
     }
   }
 }
+  "update_modal": {
+    "title": "有可用更新",
+    "message": "新版本 ({version}，提交 {commit}) 已发布。请更新您的应用程序。",
+    "current_version": "当前版本：{version}",
+    "dismiss": "忽略",
+    "check_again": "重新检查",
+    "view_repo": "在 GitHub 上查看"
+  },

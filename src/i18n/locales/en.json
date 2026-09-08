@@ -1736,3 +1736,14 @@
     }
   }
 }
+  "update_modal": {
+    "title": "Update Available",
+    "message": "A new version ({version}, commit {commit}) is available. Please update your application.",
+    "current_version": "Current version: {version}",
+    "dismiss": "Dismiss",
+    "check_again": "Check Again",
+    "view_repo": "View on GitHub"
+  },
+  "system_info": {
+    "update_required": "Update Required: A new version is available. Please update the app."
+  }

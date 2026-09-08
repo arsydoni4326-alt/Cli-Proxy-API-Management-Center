@@ -45,3 +45,6 @@ export const SUPPORTED_LANGUAGES = LANGUAGE_ORDER;
 
 // 通知持续时间
 export const NOTIFICATION_DURATION_MS = 3000;
+// Commit header keys
+export const CPA_COMMIT_HEADER_KEYS = ['x-cpa-commit'];
+export const COMMIT_HEADER_KEYS = [...CPA_COMMIT_HEADER_KEYS, 'x-server-commit'];

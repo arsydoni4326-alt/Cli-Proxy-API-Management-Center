@@ -8,8 +8,10 @@ import type { ApiClientConfig, ApiError } from '@/types';
 import {
   BUILD_DATE_HEADER_KEYS,
   CPA_BUILD_DATE_HEADER_KEYS,
+  CPA_COMMIT_HEADER_KEYS,
   CPA_SUPPORT_PLUGIN_HEADER_KEYS,
   CPA_VERSION_HEADER_KEYS,
+  COMMIT_HEADER_KEYS,
   REQUEST_TIMEOUT_MS,
   VERSION_HEADER_KEYS,
 } from '@/utils/constants';
@@ -123,8 +125,10 @@ class ApiClient {
         const headers = response.headers as Record<string, string | undefined>;
         const cpaVersion = this.readHeader(headers, CPA_VERSION_HEADER_KEYS);
         const cpaBuildDate = this.readHeader(headers, CPA_BUILD_DATE_HEADER_KEYS);
+        const cpaCommit = this.readHeader(headers, CPA_COMMIT_HEADER_KEYS);
         const version = cpaVersion || this.readHeader(headers, VERSION_HEADER_KEYS);
         const buildDate = cpaBuildDate || this.readHeader(headers, BUILD_DATE_HEADER_KEYS);
+        const commit = cpaCommit || this.readHeader(headers, COMMIT_HEADER_KEYS);
         const supportsPlugin = this.readBooleanHeader(headers, CPA_SUPPORT_PLUGIN_HEADER_KEYS);
 
         // 触发版本更新事件（后续通过 store 处理）
@@ -132,6 +136,14 @@ class ApiClient {
           window.dispatchEvent(
             new CustomEvent('server-version-update', {
               detail: { version: version || null, buildDate: buildDate || null },
+            })
+          );
+        }
+        // 触发提交更新事件
+        if (commit) {
+          window.dispatchEvent(
+            new CustomEvent('server-commit-update', {
+              detail: { commit: commit || null },
             })
           );
         }
@@ -249,5 +261,4 @@ class ApiClient {
   }
 }
 
-// 导出单例
 export const apiClient = new ApiClient();

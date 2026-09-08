@@ -11,6 +11,7 @@ import {
   useNotificationStore,
   useModelsStore,
   useThemeStore,
+  useUpdateStore,
 } from '@/stores';
 import { configApi, versionApi } from '@/services/api';
 import { useApiKeysForModels } from '@/hooks/useApiKeysForModels';
@@ -237,21 +238,35 @@ export function SystemPage() {
       const latestRaw = data?.['latest-version'] ?? data?.latest_version ?? data?.latest ?? '';
       const latest = typeof latestRaw === 'string' ? latestRaw : String(latestRaw ?? '');
       const comparison = compareVersions(latest, auth.serverVersion);
+      const latestCommit = data?.['latest-commit'] ?? data?.latest_commit ?? '';
 
-      if (!latest) {
+      if (!latest && !latestCommit) {
         showNotification(t('system_info.version_check_error'), 'error');
         return;
       }
 
-      if (comparison === null) {
-        showNotification(t('system_info.version_current_missing'), 'warning');
-        return;
-      }
+      // Update the global update store to potentially show modal
+      const currentCommit = auth.serverCommit;
+      const updateAvailable = currentCommit && latestCommit && currentCommit !== latestCommit;
+      
+      useUpdateStore.getState().setUpdateInfo({
+        updateAvailable,
+        latestVersion: latest || null,
+        latestCommit: latestCommit || null,
+        currentCommit: currentCommit || null,
+      });
 
-      if (comparison > 0) {
-        showNotification(t('system_info.version_update_available', { version: latest }), 'warning');
+      if (updateAvailable) {
+        // Open the update modal
+        useUpdateStore.getState().setUpdateModalOpen(true);
+      } else if (comparison !== null) {
+        if (comparison > 0) {
+          showNotification(t('system_info.version_update_available', { version: latest }), 'warning');
+        } else {
+          showNotification(t('system_info.version_is_latest'), 'success');
+        }
       } else {
-        showNotification(t('system_info.version_is_latest'), 'success');
+        showNotification(t('system_info.version_current_missing'), 'warning');
       }
     } catch (error: unknown) {
       const message =
@@ -261,7 +276,7 @@ export function SystemPage() {
     } finally {
       setCheckingVersion(false);
     }
-  }, [auth.serverVersion, showNotification, t]);
+  }, [auth.serverVersion, auth.serverCommit, showNotification, t]);
 
   useEffect(() => {
     fetchConfig().catch(() => {
