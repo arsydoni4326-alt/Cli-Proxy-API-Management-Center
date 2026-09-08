@@ -62,6 +62,13 @@ function RootShell() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [auth.connectionStatus, checkForUpdates]);
 
+  // Check on initial mount (for hard page refreshes F5)
+  useEffect(() => {
+    if (auth.connectionStatus === 'connected') {
+      checkForUpdates();
+    }
+  }, []);  // Empty dependency array - runs once on mount
+
   return (
     <>
       <NotificationContainer />

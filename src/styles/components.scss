@@ -632,6 +632,74 @@ textarea {
   }
 }
 
+/* Update Modal Content Styles - centered modal popup */
+.update-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.update-modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.update-modal-message {
+  text-align: center;
+  width: 100%;
+
+  p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 16px;
+  }
+
+  .update-modal-current {
+    margin-top: $spacing-sm;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+}
+
+.update-modal-actions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.update-modal-link {
+  display: block;
+  margin-top: $spacing-md;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 14px;
+  text-align: center;
+  padding: $spacing-sm;
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+
+  &:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+  }
+}
+
 .error-box {
   background: rgba($error-color, 0.1);
   border: 1px solid rgba($error-color, 0.4);

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface UpdateInfo {
   updateAvailable: boolean;
@@ -14,9 +15,19 @@ interface UpdateStore {
   setUpdateModalOpen: (open: boolean) => void;
 }
 
-export const useUpdateStore = create<UpdateStore>((set) => ({
-  updateInfo: null,
-  updateModalOpen: false,
-  setUpdateInfo: (info) => set({ updateInfo: info }),
-  setUpdateModalOpen: (open) => set({ updateModalOpen: open }),
-}));
+export const useUpdateStore = create<UpdateStore>()(
+  persist(
+    (set) => ({
+      updateInfo: null,
+      updateModalOpen: false,
+      setUpdateInfo: (info) => set({ updateInfo: info }),
+      setUpdateModalOpen: (open) => set({ updateModalOpen: open }),
+    }),
+    {
+      name: 'update-store',
+      partialize: (state) => ({
+        updateModalOpen: state.updateModalOpen,
+      }),
+    }
+  )
+);
