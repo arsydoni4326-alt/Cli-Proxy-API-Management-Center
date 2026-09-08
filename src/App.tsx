@@ -36,9 +36,8 @@ function RootShell() {
         currentCommit: currentCommit || null,
       });
 
-      if (updateAvailable) {
-        setUpdateModalOpen(true);
-      }
+      // Always show modal after checking
+      setUpdateModalOpen(true);
     } catch (error) {
       console.error('Update check failed:', error);
     }
@@ -62,7 +61,7 @@ function RootShell() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [auth.connectionStatus, checkForUpdates]);
 
-  // Check on initial mount (for hard page refreshes F5)
+  // Always show modal on initial mount (for hard page refreshes F5)
   useEffect(() => {
     if (auth.connectionStatus === 'connected') {
       checkForUpdates();
