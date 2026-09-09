@@ -1740,20 +1740,20 @@
       "modelCatalog": {
         "notLoaded": "未加载"
       }
-    },
-    "update_modal": {
-      "title": "有可用更新",
-      "message": "上游仓库有可用更新：{{version}}（提交 {{commit}}）。",
-      "current_version": "当前版本：{{version}}",
-      "dismiss": "忽略",
-      "check_again": "重新检查",
-      "view_repo": "在 GitHub 上查看",
-      "show_changelog": "显示更新日志",
-      "hide_changelog": "隐藏更新日志",
-      "changelog_title": "更新日志",
-      "changelog_description": "版本 {{version}} 的发布说明可在项目更新日志中查看。",
-      "view_changelog": "在 GitHub 上查看完整更新日志",
-      "version_unknown": "未知"
     }
+  },
+  "update_modal": {
+    "title": "有可用更新",
+    "message": "上游仓库有可用更新：{{version}}（提交 {{commit}}）。",
+    "current_version": "当前版本：{{version}}",
+    "dismiss": "忽略",
+    "check_again": "重新检查",
+    "view_repo": "在 GitHub 上查看",
+    "show_changelog": "显示更新日志",
+    "hide_changelog": "隐藏更新日志",
+    "changelog_title": "更新日志",
+    "changelog_description": "版本 {{version}} 的发布说明可在项目更新日志中查看。",
+    "view_changelog": "在 GitHub 上查看完整更新日志",
+    "version_unknown": "未知"
   }
 }

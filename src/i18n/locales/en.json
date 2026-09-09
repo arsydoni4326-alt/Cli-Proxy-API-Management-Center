@@ -1715,20 +1715,20 @@
       "modelCatalog": {
         "notLoaded": "Not loaded"
       }
-    },
-    "update_modal": {
-      "title": "Update Available",
-      "message": "An update from the upstream repository is available: {{version}} (commit {{commit}}).",
-      "current_version": "Current version: {{version}}",
-      "dismiss": "Dismiss",
-      "check_again": "Check Again",
-      "view_repo": "View on GitHub",
-      "show_changelog": "Show changelog",
-      "hide_changelog": "Hide changelog",
-      "changelog_title": "Changelog",
-      "changelog_description": "Release notes for {{version}} are available in the project changelog.",
-      "view_changelog": "View full changelog on GitHub",
-      "version_unknown": "Unknown"
     }
+  },
+  "update_modal": {
+    "title": "Update Available",
+    "message": "An update from the upstream repository is available: {{version}} (commit {{commit}}).",
+    "current_version": "Current version: {{version}}",
+    "dismiss": "Dismiss",
+    "check_again": "Check Again",
+    "view_repo": "View on GitHub",
+    "show_changelog": "Show changelog",
+    "hide_changelog": "Hide changelog",
+    "changelog_title": "Changelog",
+    "changelog_description": "Release notes for {{version}} are available in the project changelog.",
+    "view_changelog": "View full changelog on GitHub",
+    "version_unknown": "Unknown"
   }
 }

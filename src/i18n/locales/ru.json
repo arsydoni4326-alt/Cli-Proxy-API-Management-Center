@@ -1705,20 +1705,20 @@
       "modelCatalog": {
         "notLoaded": "Не загружено"
       }
-    },
-    "update_modal": {
-      "title": "Доступно обновление",
-      "message": "Доступно обновление из upstream-репозитория: {{version}} (коммит {{commit}}).",
-      "current_version": "Текущая версия: {{version}}",
-      "dismiss": "Закрыть",
-      "check_again": "Проверить снова",
-      "view_repo": "Посмотреть на GitHub",
-      "show_changelog": "Показать журнал изменений",
-      "hide_changelog": "Скрыть журнал изменений",
-      "changelog_title": "Журнал изменений",
-      "changelog_description": "Примечания к выпуску {{version}} доступны в журнале изменений проекта.",
-      "view_changelog": "Открыть полный журнал изменений на GitHub",
-      "version_unknown": "Неизвестно"
     }
+  },
+  "update_modal": {
+    "title": "Доступно обновление",
+    "message": "Доступно обновление из upstream-репозитория: {{version}} (коммит {{commit}}).",
+    "current_version": "Текущая версия: {{version}}",
+    "dismiss": "Закрыть",
+    "check_again": "Проверить снова",
+    "view_repo": "Посмотреть на GitHub",
+    "show_changelog": "Показать журнал изменений",
+    "hide_changelog": "Скрыть журнал изменений",
+    "changelog_title": "Журнал изменений",
+    "changelog_description": "Примечания к выпуску {{version}} доступны в журнале изменений проекта.",
+    "view_changelog": "Открыть полный журнал изменений на GitHub",
+    "version_unknown": "Неизвестно"
   }
 }
