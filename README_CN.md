@@ -141,6 +141,7 @@ bun run build
 - **日志页面不显示**：需要在“基础设置”里开启“写入日志文件”，导航项才会出现。
 - **功能提示不支持**：多为后端版本较旧或接口未启用/不存在（如：认证文件模型列表、排除模型、日志相关接口）。
 - **OpenAI 提供商测试失败**：测试在浏览器侧执行，会受网络与 CORS 影响；这里失败不一定代表服务端不可用。
+- **更新弹窗显示原始翻译 key（如 `update_modal.title`)**：通常是因为语言包文件中的 `update_modal` 块放置位置不正确（例如放在 `config_management.update_modal` 下，而不是顶层）。请确保所有四个语言包文件（`en.json`、`zh-CN.json`、`zh-TW.json`、`ru.json`）都将 `update_modal` 放在顶层，以便 UpdateModal 组件能正确解析 `t('update_modal.title')` 等翻译。如果你维护自定义翻译或衍生版本，请检查是否同样满足顶层放置要求。
 
 ## 开发命令
 

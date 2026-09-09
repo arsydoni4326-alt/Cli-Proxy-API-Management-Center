@@ -141,6 +141,7 @@ The UI language is automatically detected from browser settings and can be manua
 - **Logs page missing**: enable “Logging to file” in Basic Settings; the navigation item is shown only when file logging is enabled.
 - **Some features show “unsupported”**: the backend may be too old or the endpoint is disabled/absent (common for model lists per auth file, excluded models, logs).
 - **OpenAI provider test fails**: the test runs in the browser and depends on network/CORS of the provider endpoint; a failure here does not always mean the server cannot reach it.
+- **Update modal shows raw translation keys (e.g., `update_modal.title`)**: this usually means the `update_modal` block in your locale files is nested incorrectly (for example, under `config_management.update_modal` instead of at the top level). Ensure all four locale files (`en.json`, `zh-CN.json`, `zh-TW.json`, `ru.json`) place `update_modal` at the top level so the UpdateModal component can resolve translations like `t('update_modal.title')`. If you maintain custom translations or a fork, check that the same top-level placement applies.
 
 ## Development
 
