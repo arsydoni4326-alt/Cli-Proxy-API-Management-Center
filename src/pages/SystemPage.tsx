@@ -247,13 +247,13 @@ export function SystemPage() {
 
       // Update the global update store to potentially show modal
       const currentCommit = auth.serverCommit;
-      const updateAvailable = currentCommit && latestCommit && currentCommit !== latestCommit;
+      const updateAvailable = !!(currentCommit && latestCommit && currentCommit !== latestCommit);
       
       useUpdateStore.getState().setUpdateInfo({
         updateAvailable,
-        latestVersion: latest || null,
-        latestCommit: latestCommit || null,
-        currentCommit: currentCommit || null,
+        latestVersion: typeof latest === 'string' ? latest : null,
+        latestCommit: typeof latestCommit === 'string' ? latestCommit : null,
+        currentCommit: typeof currentCommit === 'string' ? currentCommit : null,
       });
 
       if (updateAvailable) {

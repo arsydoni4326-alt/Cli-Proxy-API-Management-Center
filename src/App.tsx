@@ -1,41 +1,43 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotificationContainer } from '@/components/common/NotificationContainer';
 import { ConfirmationModal } from '@/components/common/ConfirmationModal';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
-import { useLanguageStore, useThemeStore, useUpdateStore } from '@/stores';
+import { useAuthStore, useLanguageStore, useThemeStore, useUpdateStore } from '@/stores';
 import { versionApi } from '@/services/api';
 import { UpdateModal } from '@/components/common/UpdateModal';
-import { useAuthStore } from '@/stores';
+import { shouldCheckInitialUpdate } from '@/utils/updateNotification';
 
 function RootShell() {
   const { updateInfo, updateModalOpen, setUpdateModalOpen, setUpdateInfo } = useUpdateStore();
   const auth = useAuthStore();
-  const location = useLocation();
+  const hasCheckedInitialUpdateRef = useRef(false);
 
   const checkForUpdates = useCallback(async () => {
     try {
       const data = await versionApi.checkLatest();
       const latestVersion = data?.['latest-version'] ?? data?.latest_version ?? data?.latest ?? '';
       const latestCommit = data?.['latest-commit'] ?? data?.latest_commit ?? '';
-      
+
       if (!latestVersion && !latestCommit) {
         return;
       }
 
       const currentCommit = auth.serverCommit;
-      const updateAvailable = currentCommit && latestCommit && currentCommit !== latestCommit;
-      
+      const updateAvailable = !!(currentCommit && latestCommit && currentCommit !== latestCommit);
+
       setUpdateInfo({
         updateAvailable,
-        latestVersion: latestVersion || null,
-        latestCommit: latestCommit || null,
-        currentCommit: currentCommit || null,
+        latestVersion: typeof latestVersion === 'string' ? latestVersion : null,
+        latestCommit: typeof latestCommit === 'string' ? latestCommit : null,
+        currentCommit: typeof currentCommit === 'string' ? currentCommit : null,
       });
 
+      // Only show the update notification modal when an update is actually available.
+      // This runs on initial mount (first visit / hard refresh) only, so client-side
+      // hash navigation (#/ai-providers -> #/auth-files) will never trigger it.
       if (updateAvailable) {
         setUpdateModalOpen(true);
       }
@@ -43,31 +45,21 @@ function RootShell() {
       console.error('Update check failed:', error);
     }
   }, [auth.serverCommit, setUpdateInfo, setUpdateModalOpen]);
-
-  // Check for update on every page navigation/refresh
+  // A hash-route change keeps RootShell mounted. This ref therefore permits one automatic
+  // check for the initial browser document only, after its first successful connection.
   useEffect(() => {
-    if (auth.connectionStatus === 'connected') {
-      checkForUpdates();
+    if (
+      !shouldCheckInitialUpdate({
+        hasChecked: hasCheckedInitialUpdateRef.current,
+        connectionStatus: auth.connectionStatus,
+      })
+    ) {
+      return;
     }
-  }, [location.key, auth.connectionStatus, checkForUpdates]);
 
-  // Check on window focus (in case update happened while away)
-  useEffect(() => {
-    const handleFocus = () => {
-      if (auth.connectionStatus === 'connected') {
-        checkForUpdates();
-      }
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    hasCheckedInitialUpdateRef.current = true;
+    void checkForUpdates();
   }, [auth.connectionStatus, checkForUpdates]);
-
-  // Check on initial mount (for hard page refreshes F5)
-  useEffect(() => {
-    if (auth.connectionStatus === 'connected') {
-      checkForUpdates();
-    }
-  }, []);  // Empty dependency array - runs once on mount
 
   return (
     <>

@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { IconGithub } from '@/components/ui/icons';
 import { useAuthStore } from '@/stores';
+import { UPSTREAM_CHANGELOG_URL, UPSTREAM_REPOSITORY_URL } from './updateChangelog';
 
 interface UpdateModalProps {
   isOpen: boolean;
@@ -13,21 +14,18 @@ interface UpdateModalProps {
   onCheckUpdate?: () => void;
 }
 
-export function UpdateModal({ isOpen, onClose, latestVersion, latestCommit, onCheckUpdate }: UpdateModalProps) {
+export function UpdateModal({
+  isOpen,
+  onClose,
+  latestVersion,
+  latestCommit,
+  onCheckUpdate,
+}: UpdateModalProps) {
   const { t } = useTranslation();
   const serverVersion = useAuthStore((state) => state.serverVersion);
-
-  useEffect(() => {
-    if (isOpen) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen, onClose]);
+  const [expandedChangelog, setExpandedChangelog] = useState(false);
+  const availableVersion = latestVersion || t('update_modal.version_unknown');
+  const availableCommit = latestCommit.slice(0, 7) || t('update_modal.version_unknown');
 
   return (
     <Modal
@@ -42,10 +40,44 @@ export function UpdateModal({ isOpen, onClose, latestVersion, latestCommit, onCh
           <IconGithub size={48} />
         </div>
         <div className="update-modal-message">
-          <p>{t('update_modal.message', { version: latestVersion, commit: latestCommit.slice(0, 7) })}</p>
+          <p>{t('update_modal.message', { version: availableVersion, commit: availableCommit })}</p>
           <p className="update-modal-current">
-            {t('update_modal.current_version', { version: serverVersion || 'Unknown' })}
+            {t('update_modal.current_version', {
+              version: serverVersion || t('update_modal.version_unknown'),
+            })}
           </p>
+        </div>
+        <div className="update-modal-changelog">
+          <button
+            type="button"
+            className="update-modal-changelog-toggle"
+            onClick={() => setExpandedChangelog((expanded) => !expanded)}
+            aria-expanded={expandedChangelog}
+            aria-controls="update-modal-changelog-content"
+          >
+            {expandedChangelog
+              ? t('update_modal.hide_changelog')
+              : t('update_modal.show_changelog')}
+            <span className={`chevron ${expandedChangelog ? 'expanded' : ''}`} aria-hidden="true">
+              ▼
+            </span>
+          </button>
+          {expandedChangelog && (
+            <div
+              id="update-modal-changelog-content"
+              className="update-modal-changelog-content"
+              role="region"
+              aria-label={t('update_modal.changelog_title')}
+            >
+              <h3>{t('update_modal.changelog_title')}</h3>
+              <p>{t('update_modal.changelog_description', { version: availableVersion })}</p>
+              <p className="changelog-link">
+                <a href={UPSTREAM_CHANGELOG_URL} target="_blank" rel="noopener noreferrer">
+                  {t('update_modal.view_changelog')}
+                </a>
+              </p>
+            </div>
+          )}
         </div>
         <div className="update-modal-actions">
           <Button variant="secondary" onClick={onClose}>
@@ -58,7 +90,7 @@ export function UpdateModal({ isOpen, onClose, latestVersion, latestCommit, onCh
           )}
         </div>
         <a
-          href="https://github.com/arsydoni4326-alt/CLIProxyAPI"
+          href={UPSTREAM_REPOSITORY_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="update-modal-link"
