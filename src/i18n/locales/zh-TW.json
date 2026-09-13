@@ -666,6 +666,8 @@
     "delete_title": "刪除映射"
   },
   "auth_login": {
+    "do_not_use_proxy": "不使用代理",
+    "do_not_use_proxy_hint": "勾選後，OAuth 登入將直連，不使用配置中的代理；取消勾選則使用配置中的代理。",
     "recommended_provider_section": "推薦提供商",
     "recommended_provider_badge": "推薦提供商",
     "other_oauth_providers": "其他 OAuth 提供商",

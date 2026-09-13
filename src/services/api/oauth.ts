@@ -30,11 +30,16 @@ const normalizeProviderForManagementPath = (provider: string): string => {
 };
 
 export const oauthApi = {
-  startAuth: (provider: string) => {
+  startAuth: (provider: string, options?: { noProxy?: boolean }) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     const params: Record<string, string | boolean> = {};
     if (WEBUI_SUPPORTED.has(providerKey)) {
       params.is_webui = true;
+    }
+    // Fork feature: "Do Not Use Proxy" — when checked, the OAuth login flow
+    // connects directly, bypassing the configured proxy (default: checked).
+    if (options?.noProxy) {
+      params.no_proxy = true;
     }
     return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
       params: Object.keys(params).length ? params : undefined,

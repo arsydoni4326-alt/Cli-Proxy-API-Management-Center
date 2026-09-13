@@ -666,6 +666,8 @@
     "delete_title": "Delete Mappings"
   },
   "auth_login": {
+    "do_not_use_proxy": "Do Not Use Proxy",
+    "do_not_use_proxy_hint": "When checked, OAuth login connects directly, bypassing the configured proxy. Uncheck to use the proxy from the configuration.",
     "recommended_provider_section": "Recommended provider",
     "recommended_provider_badge": "Recommended provider",
     "other_oauth_providers": "Other OAuth providers",

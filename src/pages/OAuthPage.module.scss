@@ -38,6 +38,40 @@
   gap: $spacing-xl;
 }
 
+.proxyToggle {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary, transparent);
+}
+
+.proxyToggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  user-select: none;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #1783ff;
+  }
+}
+
+.proxyToggleHint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+
 .providerSection {
   display: flex;
   flex-direction: column;

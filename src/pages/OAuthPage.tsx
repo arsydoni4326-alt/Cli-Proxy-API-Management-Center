@@ -248,6 +248,9 @@ export function OAuthPage() {
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
   const [states, setStates] = useState<Record<string, ProviderState>>({});
   const [pluginProviders, setPluginProviders] = useState<PluginOAuthProviderCard[]>([]);
+  // Fork feature: "Do Not Use Proxy" — checked by default so OAuth logins
+  // connect directly; unchecking restores the configured proxy behavior.
+  const [doNotUseProxy, setDoNotUseProxy] = useState(true);
   const [vertexState, setVertexState] = useState<VertexImportState>({
     fileName: '',
     location: '',
@@ -392,7 +395,7 @@ export function OAuthPage() {
       callbackSubmitting: false,
     });
     try {
-      const res = await oauthApi.startAuth(provider);
+      const res = await oauthApi.startAuth(provider, { noProxy: doNotUseProxy });
       if (!attempt.isCurrent()) return;
       if (!res.state) {
         const message = t('auth_login.missing_state');
@@ -703,6 +706,20 @@ export function OAuthPage() {
       <h1 className={styles.pageTitle}>{t('nav.oauth', { defaultValue: 'OAuth' })}</h1>
 
       <div className={styles.content}>
+        {/* Fork feature: "Do Not Use Proxy" — applies immediately to the next
+            OAuth login without restarting the service. */}
+        <div className={styles.proxyToggle}>
+          <label className={styles.proxyToggleLabel}>
+            <input
+              type="checkbox"
+              checked={doNotUseProxy}
+              onChange={(e) => setDoNotUseProxy(e.target.checked)}
+            />
+            <span>{t('auth_login.do_not_use_proxy')}</span>
+          </label>
+          <div className={styles.proxyToggleHint}>{t('auth_login.do_not_use_proxy_hint')}</div>
+        </div>
+
         {featuredProvider && (
           <section className={styles.providerSection}>
             {renderOAuthProviderCard(featuredProvider, true)}

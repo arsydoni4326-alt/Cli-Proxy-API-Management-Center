@@ -87,7 +87,7 @@ bun run build
   - OpenAI 兼容提供商（多 Key、Header、自助从 `/v1/models` 拉取并导入模型别名、可选浏览器侧 `chat/completions` 测试）。
   - 每个提供商提供 **「直连（不使用代理）」** 开关：启用后该提供商流量绕过系统代理直接连接（在 `config.yaml` 中持久化为 `proxy-url: "direct"`）；关闭（默认）时走系统代理。
 - **认证文件**：上传/下载/删除 JSON 凭据，筛选/搜索/分页，标记 runtime-only；查看单个凭据可用模型（依赖后端支持）；管理 OAuth 排除模型（支持 `*` 通配符）；配置 OAuth 模型别名映射。
-- **OAuth**：对 Codex、Anthropic/Claude、Antigravity、Kimi、xAI/Grok 发起 OAuth/设备码流程并轮询状态；支持提交回调 URL 或 xAI/Grok 页面显示的 code；包含 Vertex JSON 凭据导入与 iFlow Cookie 导入。
+- **OAuth**：对 Codex、Anthropic/Claude、Antigravity、Kimi、xAI/Grok 发起 OAuth/设备码流程并轮询状态；支持提交回调 URL 或 xAI/Grok 页面显示的 code；包含 Vertex JSON 凭据导入与 iFlow Cookie 导入。提供 **「不使用代理」** 复选框（默认勾选）：勾选后 OAuth 登录直连，不使用配置中的代理；取消勾选则使用配置中的代理。该选项随每次登录请求发送（`no_proxy=true`），切换后无需重启服务即可生效。**Fork 专属功能** — 通过父仓库 `docs/MERGE-PRESERVATION-fork-fixes.md` 的第 8 项保证在合并上游时不被丢失。
 - **配额管理**：管理 Claude、Antigravity、Codex、Kimi、xAI/Grok 等提供商的配额上限与使用情况。
 - **日志**：增量拉取日志、自动刷新、搜索、隐藏管理端流量、清空日志；下载请求错误日志文件。
 - **系统信息**：快捷链接、版本检查、请求日志开关、本地登录信息清理，以及拉取 `/v1/models` 并分组展示（需要至少一个代理 API Key 才能查询模型）。
