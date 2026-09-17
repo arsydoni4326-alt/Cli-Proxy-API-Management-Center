@@ -25,6 +25,12 @@ The Management Center is a React single-page frontend for the CLI Proxy API Mana
 - Modal titles, icons, and messages reuse existing localized `common.*` and `auth_login.*` /
   `vertex_import.*` / `notification.*` keys in English, Simplified Chinese, Traditional Chinese,
   and Russian; no new translation keys are required.
+- For the main OAuth process result of every provider (built-in and plugin), the modal shows
+  **only** the localized `*_oauth_status_success` or `*_oauth_status_error` message — never a
+  concatenated runtime error string, status code, or other detail, and never the
+  `*_oauth_status_waiting` status text. The detailed error remains visible on the provider card's
+  inline status line. Callback validation, Devin cancellation, and Vertex/iFlow import outcomes
+  may keep their own explicit single-key messages because they are not the main login result.
 - Non-result feedback that is not part of the OAuth process outcome, such as "link copied to
   clipboard", remains a toast notification.
 
