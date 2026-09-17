@@ -699,3 +699,62 @@ textarea {
 .hint {
   color: var(--text-secondary);
 }
+
+/* OAuth Result Modal Content Styles - mirrors the update modal layout */
+.oauth-result-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+
+  .oauth-result-modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-md;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: var(--info-color);
+  }
+
+  &.oauth-result-modal-success .oauth-result-modal-icon {
+    color: var(--success-color);
+  }
+
+  &.oauth-result-modal-error .oauth-result-modal-icon {
+    color: var(--error-color);
+  }
+
+  &.oauth-result-modal-warning .oauth-result-modal-icon {
+    color: var(--warning-color);
+  }
+
+  .oauth-result-modal-message {
+    text-align: center;
+    width: 100%;
+    word-break: break-word;
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+      font-size: 16px;
+    }
+  }
+
+  .oauth-result-modal-actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
