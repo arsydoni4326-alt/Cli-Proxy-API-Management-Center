@@ -14,6 +14,20 @@ The Management Center is a React single-page frontend for the CLI Proxy API Mana
 - The notification presents the connected server's current version, the available upstream version and commit, a changelog summary with a link to the repository changelog, and a dismiss action.
 - Users can invoke an explicit manual update check from the System page. Manual checking remains available independently of the automatic initial-load check.
 
+## OAuth result modals
+
+- Every OAuth process result on the OAuth page (`#/oauth`) — login success or failure, polling
+  errors, callback validation warnings, session cancellation, and Vertex/iFlow import outcomes —
+  is presented as a centered modal instead of a transient toast notification.
+- The modal is built on the shared `Modal` component and stays open until the user dismisses it
+  via the close button, the action button, or the Escape key. It must never auto-dismiss on a
+  timer, so results can not be missed.
+- Modal titles, icons, and messages reuse existing localized `common.*` and `auth_login.*` /
+  `vertex_import.*` / `notification.*` keys in English, Simplified Chinese, Traditional Chinese,
+  and Russian; no new translation keys are required.
+- Non-result feedback that is not part of the OAuth process outcome, such as "link copied to
+  clipboard", remains a toast notification.
+
 ## Compatibility and localization
 
 - Preserve `createHashRouter` routing and single-file Vite output.

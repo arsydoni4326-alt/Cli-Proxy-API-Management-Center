@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { IconPlug } from '@/components/ui/icons';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
+import { OAuthResultModal, type OAuthResult } from '@/components/common/OAuthResultModal';
 import { oauthApi, pluginsApi, type BuiltInOAuthProvider } from '@/services/api';
 import { vertexApi, type VertexImportResponse } from '@/services/api/vertex';
 import { copyToClipboard } from '@/utils/clipboard';
@@ -256,6 +257,12 @@ export function OAuthPage() {
   const navigate = useNavigate();
   const apiBase = useAuthStore((state) => state.apiBase);
   const { showNotification } = useNotificationStore();
+  // OAuth process results are presented as a modal instead of a transient
+  // toast so users cannot miss them; the modal requires manual dismissal.
+  const [oauthResult, setOauthResult] = useState<OAuthResult | null>(null);
+  const showOauthResult = useCallback((type: OAuthResult['type'], message: string) => {
+    setOauthResult({ type, message });
+  }, []);
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
   const [states, setStates] = useState<Record<string, ProviderState>>({});
   const [pluginProviders, setPluginProviders] = useState<PluginOAuthProviderCard[]>([]);
@@ -385,7 +392,7 @@ export function OAuthPage() {
       (res) => {
         if (res.status === 'ok') {
           completeProviderAuth(provider);
-          showNotification(getProviderTextByID(provider, 'oauth_status_success'), 'success');
+          showOauthResult('success', getProviderTextByID(provider, 'oauth_status_success'));
         } else if (res.status === 'error') {
           if (provider === 'devin') {
             // Expired, denied and cancelled states cannot accept another callback.
@@ -400,9 +407,9 @@ export function OAuthPage() {
             });
           }
           updateProviderState(provider, { status: 'error', error: res.error, polling: false });
-          showNotification(
-            `${getProviderTextByID(provider, 'oauth_status_error')} ${res.error || ''}`,
-            'error'
+          showOauthResult(
+            'error',
+            `${getProviderTextByID(provider, 'oauth_status_error')} ${res.error || ''}`
           );
         }
         return res.status === 'wait';
@@ -437,7 +444,7 @@ export function OAuthPage() {
       if (!attempt.isCurrent()) return;
       if (result.cancelled) {
         resetProviderAttempt(provider);
-        showNotification(t('auth_login.devin_oauth_cancelled'), 'success');
+        showOauthResult('success', t('auth_login.devin_oauth_cancelled'));
         return;
       }
       // A completed or expired session returns cancelled=false. Read its real
@@ -446,7 +453,7 @@ export function OAuthPage() {
       if (!attempt.isCurrent()) return;
       const message = getErrorMessage(err);
       updateProviderState(provider, { cancelError: message });
-      showNotification(`${t('auth_login.devin_oauth_cancel_error')} ${message}`, 'error');
+      showOauthResult('error', `${t('auth_login.devin_oauth_cancel_error')} ${message}`);
     }
     updateProviderState(provider, {
       cancelling: false,
@@ -486,7 +493,7 @@ export function OAuthPage() {
           error: message,
           polling: false,
         });
-        showNotification(message, 'error');
+        showOauthResult('error', message);
         return;
       }
       updateProviderState(provider, {
@@ -500,9 +507,9 @@ export function OAuthPage() {
       if (!attempt.isCurrent()) return;
       const message = getErrorMessage(err);
       updateProviderState(provider, { status: 'error', error: message, polling: false });
-      showNotification(
-        `${getProviderTextByID(provider, 'oauth_start_error')}${message ? ` ${message}` : ''}`,
-        'error'
+      showOauthResult(
+        'error',
+        `${getProviderTextByID(provider, 'oauth_start_error')}${message ? ` ${message}` : ''}`
       );
     }
   };
@@ -527,30 +534,30 @@ export function OAuthPage() {
     }
     const callbackInput = (states[provider]?.callbackUrl || '').trim();
     if (!callbackInput) {
-      showNotification(
+      showOauthResult(
+        'warning',
         t(
           provider === 'xai'
             ? 'auth_login.xai_callback_required'
             : 'auth_login.oauth_callback_required'
-        ),
-        'warning'
+        )
       );
       return;
     }
     if (provider === 'devin') {
       const callbackError = validateDevinCallback(callbackInput, states[provider]?.state);
       if (callbackError) {
-        showNotification(t(`auth_login.devin_callback_${callbackError}`), 'warning');
+        showOauthResult('warning', t(`auth_login.devin_callback_${callbackError}`));
         return;
       }
     }
     const redirectUrl = resolveCallbackUrl(provider, callbackInput, states[provider]?.state);
     if (!redirectUrl) {
-      showNotification(
+      showOauthResult(
+        'warning',
         t(
           provider === 'xai' ? 'auth_login.xai_callback_state_missing' : 'auth_login.missing_state'
-        ),
-        'warning'
+        )
       );
       return;
     }
@@ -563,7 +570,7 @@ export function OAuthPage() {
       await oauthApi.submitCallback(provider, redirectUrl, attempt.signal);
       if (!attempt.isCurrent()) return;
       updateProviderState(provider, { callbackSubmitting: false, callbackStatus: 'success' });
-      showNotification(t('auth_login.oauth_callback_success'), 'success');
+      showOauthResult('success', t('auth_login.oauth_callback_success'));
     } catch (err: unknown) {
       if (!attempt.isCurrent()) return;
       const status = getErrorStatus(err);
@@ -582,7 +589,7 @@ export function OAuthPage() {
       const notificationMessage = errorMessage
         ? `${t('auth_login.oauth_callback_error')} ${errorMessage}`
         : t('auth_login.oauth_callback_error');
-      showNotification(notificationMessage, 'error');
+      showOauthResult('error', notificationMessage);
     }
   };
 
@@ -594,7 +601,7 @@ export function OAuthPage() {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.name.endsWith('.json')) {
-      showNotification(t('vertex_import.file_required'), 'warning');
+      showOauthResult('warning', t('vertex_import.file_required'));
       event.target.value = '';
       return;
     }
@@ -612,7 +619,7 @@ export function OAuthPage() {
     if (!vertexState.file) {
       const message = t('vertex_import.file_required');
       setVertexState((prev) => ({ ...prev, error: message }));
-      showNotification(message, 'warning');
+      showOauthResult('warning', message);
       return;
     }
     const location = vertexState.location.trim();
@@ -630,7 +637,7 @@ export function OAuthPage() {
       };
       setVertexState((prev) => ({ ...prev, loading: false, result }));
       notifyAuthFilesChanged();
-      showNotification(t('vertex_import.success'), 'success');
+      showOauthResult('success', t('vertex_import.success'));
     } catch (err: unknown) {
       const message = getErrorMessage(err);
       setVertexState((prev) => ({
@@ -641,7 +648,7 @@ export function OAuthPage() {
       const notification = message
         ? `${t('notification.upload_failed')}: ${message}`
         : t('notification.upload_failed');
-      showNotification(notification, 'error');
+      showOauthResult('error', notification);
     }
   };
 
@@ -954,6 +961,7 @@ export function OAuthPage() {
           </Card>
         </section>
       </div>
+      <OAuthResultModal result={oauthResult} onClose={() => setOauthResult(null)} />
     </div>
   );
 }
