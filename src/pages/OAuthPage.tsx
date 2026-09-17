@@ -407,10 +407,7 @@ export function OAuthPage() {
             });
           }
           updateProviderState(provider, { status: 'error', error: res.error, polling: false });
-          showOauthResult(
-            'error',
-            `${getProviderTextByID(provider, 'oauth_status_error')} ${res.error || ''}`
-          );
+          showOauthResult('error', getProviderTextByID(provider, 'oauth_status_error'));
         }
         return res.status === 'wait';
       },
@@ -507,10 +504,7 @@ export function OAuthPage() {
       if (!attempt.isCurrent()) return;
       const message = getErrorMessage(err);
       updateProviderState(provider, { status: 'error', error: message, polling: false });
-      showOauthResult(
-        'error',
-        `${getProviderTextByID(provider, 'oauth_start_error')}${message ? ` ${message}` : ''}`
-      );
+      showOauthResult('error', getProviderTextByID(provider, 'oauth_status_error'));
     }
   };
 
