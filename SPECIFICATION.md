@@ -16,6 +16,16 @@ The Management Center is a React single-page frontend for the CLI Proxy API Mana
 
 ## OAuth result modals
 
+> **Protected feature — removal prohibited.** Per project-owner mandate, the OAuth
+> result modal must never be removed, replaced with toast notifications, or silently
+> downgraded (e.g., auto-dismiss timers, appended runtime error strings in main login
+> results). This is enforced by the `OAuth result modal feature contract (protected)`
+> suite in `tests/oauthResultModal.test.ts`, which fails CI if the component, its
+> wiring in `OAuthPage.tsx`, the `showOauthResult` call sites, the strict message rule,
+> or the `.oauth-result-modal-*` styles regress. Any proposal to change this behavior
+> requires an explicit owner decision and a matching update to this specification,
+> the contract test, and `CHANGELOG.md`.
+
 - Every OAuth process result on the OAuth page (`#/oauth`) — login success or failure, polling
   errors, callback validation warnings, session cancellation, and Vertex/iFlow import outcomes —
   is presented as a centered modal instead of a transient toast notification.
