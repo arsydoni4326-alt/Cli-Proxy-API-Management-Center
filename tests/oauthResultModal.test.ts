@@ -66,3 +66,60 @@ describe('OAuthResultModal', () => {
     expect(source).not.toMatch(/setTimeout|setInterval|NotificationTimer/);
   });
 });
+
+/*
+ * Protected feature contract (project-owner mandate): the OAuth result modal
+ * must never be removed, replaced by toasts, or silently downgraded. The
+ * source-level checks below fail the test suite if a future merge or edit
+ * regresses the feature. See SPECIFICATION.md ("OAuth result modals").
+ */
+const pageSource = await Bun.file('src/pages/OAuthPage.tsx').text();
+const modalSource = await Bun.file('src/components/common/OAuthResultModal.tsx').text();
+const styleSource = await Bun.file('src/styles/components.scss').text();
+
+describe('OAuth result modal feature contract (protected)', () => {
+
+  test('the OAuth page still mounts the OAuthResultModal component', () => {
+    expect(modalSource).toContain('export function OAuthResultModal');
+    expect(pageSource).toContain('OAuthResultModal');
+    expect(pageSource).toMatch(/<OAuthResultModal\s+result=\{oauthResult\}/);
+  });
+
+  test('the OAuth page still routes OAuth outcomes through showOauthResult', () => {
+    expect(pageSource).toContain("import { OAuthResultModal, type OAuthResult }");
+    expect(pageSource).toContain('const showOauthResult = useCallback(');
+    // Known call sites: poll success/error, start error, missing state, Devin
+    // cancel, callback required/validation/state, callback success/error, and
+    // Vertex import file/required/success/error.
+    expect(pageSource.match(/showOauthResult\(/g)?.length).toBeGreaterThanOrEqual(15);
+  });
+
+  test('main login results keep the strict localized status message', () => {
+    // Poll success and error must show ONLY the provider status text.
+    expect(pageSource).toContain(
+      "showOauthResult('success', getProviderTextByID(provider, 'oauth_status_success'))"
+    );
+    expect(pageSource).toContain(
+      "showOauthResult('error', getProviderTextByID(provider, 'oauth_status_error'))"
+    );
+    // The waiting status text must never be used as a modal message.
+    expect(pageSource).not.toMatch(/showOauthResult\([^)]*oauth_status_waiting/);
+  });
+
+  test('OAuth outcomes are never downgraded to toast notifications', () => {
+    // The only allowed toast on the OAuth page is the clipboard feedback.
+    const toastCalls = pageSource.match(/showNotification\(/g) ?? [];
+    expect(toastCalls.length).toBeLessThanOrEqual(1);
+    if (toastCalls.length > 0) {
+      expect(pageSource).toMatch(/showNotification\(\s*t\(copied \? 'notification\.link_copied'/);
+    }
+  });
+
+  test('modal styles remain defined in the global component stylesheet', () => {
+    const styles = styleSource;
+    expect(styles).toContain('.oauth-result-modal-content');
+    for (const type of ['success', 'error', 'warning']) {
+      expect(styles).toContain(`.oauth-result-modal-${type} .oauth-result-modal-icon`);
+    }
+  });
+});

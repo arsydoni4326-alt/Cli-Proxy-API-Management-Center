@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Protected-feature contract test suite (`OAuth result modal feature contract (protected)` in
+  `tests/oauthResultModal.test.ts`) that fails the test suite if the OAuth result modal is ever
+  removed, replaced by toasts, or downgraded (per project-owner mandate). No runtime behavior
+  changed; the feature was verified intact and byte-identical to its introduction commit.
 - OAuth process results (login success/failure, polling errors, callback validation,
   cancellation, and Vertex/iFlow import outcomes) now appear as a centered modal that stays
   open until manually dismissed, replacing the small transient toast notifications that were
