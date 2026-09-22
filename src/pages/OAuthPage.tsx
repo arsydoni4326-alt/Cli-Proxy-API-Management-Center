@@ -860,9 +860,6 @@ export function OAuthPage() {
   const featuredProviders = providerCards.filter((provider) =>
     ['kimi', 'kimi-ai'].includes(provider.id)
   );
-  const otherOAuthProviders = providerCards.filter(
-    (provider) => !['kimi', 'kimi-ai'].includes(provider.id)
-  );
 
   return (
     <div className={styles.container}>
