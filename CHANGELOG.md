@@ -8,7 +8,22 @@
   and the upstream `quota_management` block (including the new account-search keys) are both
   present in all four locale files (`en`, `ru`, `zh-CN`, `zh-TW`).
 
+### Fixed
+- **OAuth page: restored missing non-featured OAuth providers (Codex, Antigravity, Meta,
+  Anthropic, xAI, Devin)** that were accidentally hidden when commit `b4f131d` removed
+  the `otherOAuthProviders` variable definition but left the JSX rendering section intact.
+  The variable definition and its rendering section have been restored, and the protected
+  OAuth providers contract suite verifies they stay present. See SPECIFICATION.md
+  ("Protected OAuth providers").
+
 ### Added
+- Protected OAuth providers domain (`src/features/protectedOAuth/`) that enforces
+  Antigravity and Codex OAuth must never be removed or replaced by upstream merges.
+  Includes a contract test suite (`Protected OAuth providers — page contract
+  (protected)` and `Protected OAuth providers — API contract (protected)` in
+  `tests/protectedOAuthProviders.test.ts`) that fails the test suite if either
+  provider's definition, icon, i18n key, page rendering, or API wiring regresses.
+  Per project-owner mandate; see SPECIFICATION.md ("Protected OAuth providers").
 - Protected-feature contract test suite (`OAuth result modal feature contract (protected)` in
   `tests/oauthResultModal.test.ts`) that fails the test suite if the OAuth result modal is ever
   removed, replaced by toasts, or downgraded (per project-owner mandate). No runtime behavior

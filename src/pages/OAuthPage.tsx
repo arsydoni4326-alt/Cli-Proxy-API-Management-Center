@@ -17,14 +17,15 @@ import {
   KIMI_CHINESE_AFFILIATE_URL,
   KIMI_INTERNATIONAL_AFFILIATE_URL,
 } from '@/features/providers/kimi';
+import {
+  PROTECTED_OAUTH_PROVIDER_DEFINITIONS,
+} from '@/features/protectedOAuth';
 import type { PluginListEntry } from '@/types';
 import { createOAuthAttempts, type OAuthAttempt } from './oauthAttempts';
 import { validateDevinCallback } from './devinOAuth';
 import styles from './OAuthPage.module.scss';
 import iconMeta from '@/assets/icons/meta.svg';
-import iconCodex from '@/assets/icons/codex.svg';
 import iconClaude from '@/assets/icons/claude.svg';
-import iconAntigravity from '@/assets/icons/antigravity.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
@@ -85,6 +86,10 @@ function getErrorStatus(error: unknown): number | undefined {
   return typeof error.status === 'number' ? error.status : undefined;
 }
 
+const PROTECTED_PROVIDER_MAP = new Map(
+  PROTECTED_OAUTH_PROVIDER_DEFINITIONS.map((provider) => [provider.id, provider])
+);
+
 const PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
@@ -107,8 +112,8 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
     id: 'codex',
-    titleKey: 'auth_login.codex_oauth_title',
-    icon: iconCodex,
+    titleKey: PROTECTED_PROVIDER_MAP.get('codex')!.titleKey,
+    icon: PROTECTED_PROVIDER_MAP.get('codex')!.icon,
   },
   {
     kind: 'builtin',
@@ -119,8 +124,8 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
     id: 'antigravity',
-    titleKey: 'auth_login.antigravity_oauth_title',
-    icon: iconAntigravity,
+    titleKey: PROTECTED_PROVIDER_MAP.get('antigravity')!.titleKey,
+    icon: PROTECTED_PROVIDER_MAP.get('antigravity')!.icon,
   },
   {
     kind: 'builtin',
@@ -860,6 +865,9 @@ export function OAuthPage() {
   const featuredProviders = providerCards.filter((provider) =>
     ['kimi', 'kimi-ai'].includes(provider.id)
   );
+  const otherOAuthProviders = providerCards.filter(
+    (provider) => !['kimi', 'kimi-ai'].includes(provider.id)
+  );
 
   return (
     <div className={styles.container}>
@@ -883,6 +891,12 @@ export function OAuthPage() {
         <section className={styles.providerSection}>
           <div className={styles.providerList}>
             {featuredProviders.map((provider) => renderOAuthProviderCard(provider, true))}
+          </div>
+        </section>
+
+        <section className={styles.providerSection}>
+          <div className={styles.providerList}>
+            {otherOAuthProviders.map((provider) => renderOAuthProviderCard(provider))}
           </div>
         </section>
 
