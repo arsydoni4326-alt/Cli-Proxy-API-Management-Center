@@ -44,6 +44,32 @@ The Management Center is a React single-page frontend for the CLI Proxy API Mana
 - Non-result feedback that is not part of the OAuth process outcome, such as "link copied to
   clipboard", remains a toast notification.
 
+## Protected OAuth providers
+
+> **Protected feature — removal prohibited.** Per project-owner mandate, Antigravity
+> and Codex OAuth must never be removed or replaced by upstream merges. This is
+> enforced by the `Protected OAuth providers — page contract (protected)` and
+> `Protected OAuth providers — API contract (protected)` suites in
+> `tests/protectedOAuthProviders.test.ts`, which fail CI if either provider's
+> definition, icon, i18n key, page rendering, or API wiring regresses. Any proposal
+> to change this behavior requires an explicit owner decision and a matching update
+> to this specification, the contract test, and `CHANGELOG.md`.
+
+- The single source of truth for protected provider metadata is
+  `src/features/protectedOAuth/providers.ts`, which exports the provider identifiers,
+  title-key mappings, and icon references that `OAuthPage.tsx` consumes.
+- `OAuthPage.tsx` must import the protected provider definitions from
+  `@/features/protectedOAuth` rather than hard-coding them, so that removing the
+  import causes a compilation error.
+- The contract test verifies:
+  - The domain module exports the correct provider definitions, IDs, and helper functions.
+  - The `auth_login.*_oauth_title` i18n keys exist in all four locales (en, zh-CN, zh-TW, ru).
+  - The icon SVG files exist at `src/assets/icons/`.
+  - `OAuthPage.tsx` still imports from the protected domain, references both providers,
+    and renders the `otherOAuthProviders` section that includes them.
+  - `oauth.ts` still includes `codex` and `antigravity` in `BuiltInOAuthProvider` and
+    `WEBUI_SUPPORTED`.
+
 ## Compatibility and localization
 
 - Preserve `createHashRouter` routing and single-file Vite output.
