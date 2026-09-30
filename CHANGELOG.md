@@ -2,19 +2,53 @@
 
 ## [Unreleased]
 
+## [1.24.6-arsydoni4326-alt] - 2026-09-30
+
 ### Merged
-- Merged upstream `v1.24.1` (`upstream/main`) into `develop`. Quota/i18n conflict resolution kept
-  both sides intact: the fork's top-level `update_modal` block (required by `UpdateModal.tsx`)
-  and the upstream `quota_management` block (including the new account-search keys) are both
-  present in all four locale files (`en`, `ru`, `zh-CN`, `zh-TW`).
+- Merged upstream `v1.25.0` (`upstream/main` at commit `b87b948`) into `develop`. Three-way
+  conflict resolution preserved all fork features while incorporating upstream changes:
+  - `oauth.ts`: Fork's `no_proxy` parameter feature combined with upstream's unified `/oauth/auth-url` endpoint
+  - `BaseProviderForm.tsx`: Kept approach that includes upstream's `sourceIndex`/`authIndex` fields
+  - `useProviderWorkbench.ts`: Combined fork's `resolveProxyUrl`/`directConnection` with upstream's `sourceIndex`
+- Previous upstream merge: `v1.24.1` with quota/i18n conflict resolution that kept both the fork's
+  top-level `update_modal` block (required by `UpdateModal.tsx`) and the upstream `quota_management`
+  block (including account-search keys) in all four locale files (`en`, `ru`, `zh-CN`, `zh-TW`).
+
+### Added (from upstream v1.25.0)
+- Logs page refactored to feature-based structure (`src/features/logs/`)
+- Config draft recovery system with conflict detection
+- Legacy backend probe for version compatibility
+- Extensive new test coverage (logs, config patches, provider editing, fullscreen behavior)
+- Config patch API with payload normalization
+- Log buffer with cursor-based pagination and bounded memory
+- Log fullscreen mode with Escape key handling
 
 ### Fixed
+- Logs: Escape key handling respects event propagation (upstream fix)
+- Config: Blocked conflicting payload replacements after recovery (upstream fix)
+- Config: List edits recovered without replaying stale indexes (upstream fix)
 - **OAuth page: restored missing non-featured OAuth providers (Codex, Antigravity, Meta,
   Anthropic, xAI, Devin)** that were accidentally hidden when commit `b4f131d` removed
   the `otherOAuthProviders` variable definition but left the JSX rendering section intact.
   The variable definition and its rendering section have been restored, and the protected
   OAuth providers contract suite verifies they stay present. See SPECIFICATION.md
   ("Protected OAuth providers").
+- Hash-route navigation, such as `#/ai-providers` to `#/auth-files`, no longer checks for or
+  opens the update notification modal.
+- Quota: Claude Team organization plans are now prioritized in plan detection (upstream fix).
+- Quota: xAI usage stays tied to its billing period, and unavailable usage is clarified
+  instead of misreported (upstream fixes #441 and follow-up).
+- Quota: live Codex renewal date is fetched from the backend instead of being estimated.
+- Auth files: weight tooltip uses plain text instead of markup.
+
+### Protected Features (preserved through merge)
+- OAuth `no_proxy` parameter (direct connection toggle)
+- Provider `directConnection` toggle and `resolveProxyUrl` logic
+- Protected OAuth providers domain (Codex, Antigravity) with contract tests
+- OAuth result modals (protected by contract tests)
+- Update notification modal (single-show on initial load)
+
+## [1.24.5-arsydoni4326-alt] - Previous Release
 
 ### Added
 - Protected OAuth providers domain (`src/features/protectedOAuth/`) that enforces
@@ -44,14 +78,6 @@
 - Quota: recognition of the Codex Business Premium entitlement (upstream fix #439).
 - Plugin resource pages now use theme backgrounds instead of hard-coded colors (upstream fix).
 
-### Fixed
-- Hash-route navigation, such as `#/ai-providers` to `#/auth-files`, no longer checks for or
-  opens the update notification modal.
-- Quota: Claude Team organization plans are now prioritized in plan detection (upstream fix).
-- Quota: xAI usage stays tied to its billing period, and unavailable usage is clarified
-  instead of misreported (upstream fixes #441 and follow-up).
-- Quota: live Codex renewal date is fetched from the backend instead of being estimated.
-- Auth files: weight tooltip uses plain text instead of markup.
 
 ## [0.0.0] - Initial
 
