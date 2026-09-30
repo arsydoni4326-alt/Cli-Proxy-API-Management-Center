@@ -8,5 +8,5 @@ import { apiClient } from './client';
  * 检查最新版本
  */
 export const versionApi = {
-  checkLatest: () => apiClient.get<Record<string, unknown>>('/latest-version'),
+  checkLatest: () => apiClient.get<Record<string, unknown>>('/server/latest-version'),
 };
