@@ -167,7 +167,7 @@ function buildInitialForm(
         ? Object.entries(cfg.headers).map(([k, v]) => ({ key: k, value: String(v) }))
         : [emptyHeader()],
       excludedModelsText: '',
-      testModel: cfg.testModel ?? '',
+      testModel: '',
       apiKeyEntries,
     };
   }
