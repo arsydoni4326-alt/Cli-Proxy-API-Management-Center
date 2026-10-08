@@ -133,6 +133,7 @@ function buildInitialForm(
       ? cfg.apiKeyEntries.map((entry) => ({
           apiKey: '',
           existingApiKey: entry.apiKey,
+          sourceIndex: entry.sourceIndex,
           proxyUrl: entry.proxyUrl ?? '',
           weight: entry.weight,
           authIndex: entry.authIndex,
@@ -157,7 +158,6 @@ function buildInitialForm(
             name: m.name,
             alias: m.alias ?? '',
             priority: m.priority,
-            testModel: m.testModel,
             image: m.image === true,
             thinkingJson: formatJsonObject(m.thinking),
             ...readModelOptions(m),
@@ -167,7 +167,7 @@ function buildInitialForm(
         ? Object.entries(cfg.headers).map(([k, v]) => ({ key: k, value: String(v) }))
         : [emptyHeader()],
       excludedModelsText: '',
-      testModel: cfg.testModel ?? '',
+      testModel: '',
       apiKeyEntries,
     };
   }
@@ -198,7 +198,6 @@ function buildInitialForm(
           name: m.name,
           alias: m.alias ?? '',
           priority: m.priority,
-          testModel: m.testModel,
           thinkingJson: formatJsonObject(m.thinking),
           ...readModelOptions(m),
         }))
@@ -696,17 +695,7 @@ export function BaseProviderForm({
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-testModel`}>
               {t('providersPage.form.testModel')}
-              {brand === 'codex' ||
-              brand === 'meta' ||
-              brand === 'xai' ||
-              isClaudeLikeBrand(brand) ||
-              brand === 'gemini' ||
-              brand === 'interactions' ? (
-                <span className={styles.labelHint}>
-                  {' '}
-                  · {t('providersPage.form.testModelClaudeHint')}
-                </span>
-              ) : null}
+              <span className={styles.labelHint}> · {t('providersPage.form.testModelHint')}</span>
             </label>
             <Select
               id={`${fid}-testModel`}
